@@ -1,0 +1,14 @@
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\dto\CreateFoodListingCommand.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\dto\FoodListingResult.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\dto\ReservePackCommand.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\port\in\CreateFoodListingUseCase.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\port\in\GetListingDetailUseCase.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\port\in\ListFoodListingsUseCase.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\port\in\PublishFoodListingUseCase.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\port\in\ReservePackUseCase.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\port\out\FoodListingRepository.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\service\CreateFoodListingService.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\service\GetListingDetailService.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\service\ListFoodListingsService.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\service\PublishFoodListingService.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-application\src\main\java\com\solveria\market\application\service\ReservePackService.java

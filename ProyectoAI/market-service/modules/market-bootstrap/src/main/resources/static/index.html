@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlimentoZero Market</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app-shell">
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">AlimentoZero Market</p>
+            <h1>Rescatá comida cerca de vos</h1>
+        </div>
+        <button class="ghost-button" id="statusButton" type="button">Estado del sistema</button>
+    </header>
+
+    <main class="content">
+        <section class="hero-card">
+            <div class="hero-copy">
+                <span class="pill pill-highlight">Marketplace híbrido</span>
+                <h2>Comprá con descuento, pedí donaciones y evitá el desperdicio</h2>
+                <p>Inspirado en una app de delivery moderna, pero enfocado en rescate alimentario, impacto y retiro trazable.</p>
+            </div>
+            <div class="hero-metrics">
+                <article>
+                    <strong id="metricListings">0</strong>
+                    <span>ofertas vivas</span>
+                </article>
+                <article>
+                    <strong id="metricMeals">0</strong>
+                    <span>raciones estimadas</span>
+                </article>
+                <article>
+                    <strong id="metricKg">0 kg</strong>
+                    <span>rescatados</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="search-panel">
+            <label class="search-box">
+                <input id="searchInput" type="search" placeholder="Buscar packs, donaciones o negocios">
+            </label>
+            <div class="chip-row" id="categoryChips"></div>
+            <div class="chip-row">
+                <button class="filter-chip is-active" data-filter="all" type="button">Todo</button>
+                <button class="filter-chip" data-filter="discount" type="button">Ventas económicas</button>
+                <button class="filter-chip" data-filter="donation" type="button">Donaciones</button>
+                <button class="filter-chip" data-filter="urgent" type="button">Próximos a vencer</button>
+            </div>
+        </section>
+
+        <section class="view is-active" id="view-home">
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">Inicio</p>
+                    <h3>Ofertas cercanas</h3>
+                </div>
+                <button class="link-button" data-nav-target="explore" type="button">Explorar todo</button>
+            </div>
+            <div class="listing-grid" id="nearbyGrid"></div>
+
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">Packs sorpresa</p>
+                    <h3>Packs económicos disponibles</h3>
+                </div>
+            </div>
+            <div class="listing-grid" id="surpriseGrid"></div>
+
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">Impacto social</p>
+                    <h3>Donación disponible</h3>
+                </div>
+            </div>
+            <div class="listing-grid" id="donationGrid"></div>
+        </section>
+
+        <section class="view" id="view-explore">
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">Explorar</p>
+                    <h3>Marketplace visual de rescate</h3>
+                </div>
+            </div>
+            <div class="listing-grid" id="exploreGrid"></div>
+        </section>
+
+        <section class="view" id="view-publish">
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">Publicar excedente</p>
+                    <h3>Creá una nueva oferta</h3>
+                </div>
+            </div>
+            <form id="publishForm" class="publish-form">
+                <div class="form-grid">
+                    <label>
+                        <span>Título</span>
+                        <input name="title" required placeholder="Pack sorpresa de panadería">
+                    </label>
+                    <label>
+                        <span>Categoría</span>
+                        <input name="category" required placeholder="Bakery">
+                    </label>
+                    <label class="form-span-2">
+                        <span>Descripción</span>
+                        <textarea name="description" required placeholder="Contá qué incluye y cuándo se retira"></textarea>
+                    </label>
+                    <label>
+                        <span>Tipo</span>
+                        <select name="listingType">
+                            <option value="DISCOUNTED_SALE">Venta económica</option>
+                            <option value="DONATION">Donación</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Condición</span>
+                        <select name="foodCondition">
+                            <option value="PREPARED_TODAY">Preparado hoy</option>
+                            <option value="GOOD">Buen estado</option>
+                            <option value="FRESH">Fresco</option>
+                            <option value="NEAR_EXPIRATION">Próximo a vencer</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Precio original (BOB)</span>
+                        <input name="originalPrice" type="number" step="0.01" min="0" value="30">
+                    </label>
+                    <label>
+                        <span>Precio rescate (BOB)</span>
+                        <input name="rescuePrice" type="number" step="0.01" min="0" value="14">
+                    </label>
+                    <label>
+                        <span>Cantidad</span>
+                        <input name="quantityAvailable" type="number" min="1" value="5">
+                    </label>
+                    <label>
+                        <span>Vence en (horas)</span>
+                        <input name="expiresInHours" type="number" min="2" value="8">
+                    </label>
+                    <label>
+                        <span>Zona</span>
+                        <input name="address" value="Zona Centro, La Paz">
+                    </label>
+                    <label>
+                        <span>Imagen</span>
+                        <input name="imageUrl" value="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80">
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button class="primary-button" type="submit">Publicar ahora</button>
+                    <button class="ghost-button" id="fillDemoButton" type="button">Cargar ejemplo</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="view" id="view-orders">
+            <div class="placeholder-card">
+                <p class="section-kicker">Pedidos y solicitudes</p>
+                <h3>Mis pedidos</h3>
+                <p>Esta demo todavía no tiene el flujo completo de órdenes y QR, pero la reserva de packs ya funciona desde cada detalle.</p>
+                <button class="primary-button" id="showHowReserve" type="button">Cómo reservar ahora</button>
+            </div>
+        </section>
+
+        <section class="view" id="view-profile">
+            <div class="placeholder-card">
+                <p class="section-kicker">Perfil</p>
+                <h3>Panel coordinador y negocio</h3>
+                <p>La siguiente iteración puede sumar dashboards por rol. Por ahora, esta UI ya muestra impacto, urgencia y publicación real de ofertas.</p>
+                <button class="ghost-button" id="showRoadmap" type="button">Ver próximos pasos</button>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <button class="nav-item is-active" data-nav-target="home" type="button">Inicio</button>
+        <button class="nav-item" data-nav-target="explore" type="button">Explorar</button>
+        <button class="nav-item" data-nav-target="publish" type="button">Publicar</button>
+        <button class="nav-item" data-nav-target="orders" type="button">Pedidos</button>
+        <button class="nav-item" data-nav-target="profile" type="button">Perfil</button>
+    </nav>
+</div>
+
+<dialog class="detail-dialog" id="detailDialog">
+    <div class="detail-media" id="detailMedia"></div>
+    <div class="detail-body">
+        <div class="detail-head">
+            <div>
+                <p class="section-kicker" id="detailType"></p>
+                <h3 id="detailTitle"></h3>
+            </div>
+            <button class="icon-button" id="closeDialogButton" type="button">Cerrar</button>
+        </div>
+        <p id="detailDescription"></p>
+        <div class="detail-stats" id="detailStats"></div>
+        <div class="detail-impact" id="detailImpact"></div>
+        <button class="primary-button" id="detailActionButton" type="button">Reservar</button>
+    </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+<script src="/app.js"></script>
+</body>
+</html>
