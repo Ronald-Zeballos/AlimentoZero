@@ -2,10 +2,16 @@ package com.solveria.iamservice.config;
 
 import com.solveria.core.iam.application.port.PermissionRepositoryPort;
 import com.solveria.core.iam.application.port.RoleRepositoryPort;
+import com.solveria.core.iam.application.port.UserRepositoryPort;
 import com.solveria.core.iam.infrastructure.persistence.adapter.PermissionRepositoryAdapter;
 import com.solveria.core.iam.infrastructure.persistence.adapter.RoleRepositoryAdapter;
+import com.solveria.core.iam.infrastructure.persistence.adapter.UserRepositoryAdapter;
+import com.solveria.core.iam.infrastructure.persistence.mapper.PermissionJpaMapper;
+import com.solveria.core.iam.infrastructure.persistence.mapper.RoleJpaMapper;
+import com.solveria.core.iam.infrastructure.persistence.mapper.UserJpaMapper;
 import com.solveria.core.iam.infrastructure.persistence.repository.PermissionJpaRepository;
 import com.solveria.core.iam.infrastructure.persistence.repository.RoleJpaRepository;
+import com.solveria.core.iam.infrastructure.persistence.repository.UserJpaRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,15 +30,43 @@ import org.springframework.context.annotation.Configuration;
 public class IamCoreImportsConfig {
 
     @Bean
+    @ConditionalOnMissingBean
+    public RoleJpaMapper roleJpaMapper() {
+        return new RoleJpaMapper();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PermissionJpaMapper permissionJpaMapper() {
+        return new PermissionJpaMapper();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public UserJpaMapper userJpaMapper() {
+        return new UserJpaMapper();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(RoleRepositoryPort.class)
-    public RoleRepositoryPort roleRepositoryPort(RoleJpaRepository roleJpaRepository) {
-        return new RoleRepositoryAdapter(roleJpaRepository);
+    public RoleRepositoryPort roleRepositoryPort(
+            RoleJpaRepository roleJpaRepository, RoleJpaMapper roleJpaMapper) {
+        return new RoleRepositoryAdapter(roleJpaRepository, roleJpaMapper);
     }
 
     @Bean
     @ConditionalOnMissingBean(PermissionRepositoryPort.class)
     public PermissionRepositoryPort permissionRepositoryPort(
-            PermissionJpaRepository permissionJpaRepository) {
-        return new PermissionRepositoryAdapter(permissionJpaRepository);
+            PermissionJpaRepository permissionJpaRepository, PermissionJpaMapper permissionJpaMapper) {
+        return new PermissionRepositoryAdapter(permissionJpaRepository, permissionJpaMapper);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(UserRepositoryPort.class)
+    public UserRepositoryPort userRepositoryPort(
+            UserJpaRepository userJpaRepository,
+            RoleJpaRepository roleJpaRepository,
+            UserJpaMapper userJpaMapper) {
+        return new UserRepositoryAdapter(userJpaRepository, roleJpaRepository, userJpaMapper);
     }
 }

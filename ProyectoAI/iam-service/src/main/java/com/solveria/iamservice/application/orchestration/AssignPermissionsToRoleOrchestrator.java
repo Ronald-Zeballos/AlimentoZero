@@ -55,6 +55,6 @@ public class AssignPermissionsToRoleOrchestrator {
                 role.getId(),
                 role.getName(),
                 role.getDescription(),
-                role.getPermissions().stream().map(permission -> permission.getId()).toList());
+                role.getPermissionIds().stream().toList());
     }
 }

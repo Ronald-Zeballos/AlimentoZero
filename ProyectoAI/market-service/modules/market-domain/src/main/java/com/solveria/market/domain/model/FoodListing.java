@@ -154,6 +154,9 @@ public final class FoodListing {
         if (status != ListingStatus.AVAILABLE && status != ListingStatus.RESERVED) {
             throw new IllegalStateException("listing is not available for reservation");
         }
+        if (isDonation()) {
+            throw new IllegalStateException("donation listings must use the donation request flow");
+        }
         ensureNotExpired(now);
         int requested = new Quantity(quantity).value();
         if (requested > availableUnits()) {
@@ -161,6 +164,27 @@ public final class FoodListing {
         }
         quantityReserved += requested;
         status = availableUnits() == 0 ? ListingStatus.SOLD_OUT : ListingStatus.RESERVED;
+        version++;
+        record(new PackReserved(id, requested, Instant.now()));
+        if (status == ListingStatus.SOLD_OUT) {
+            record(new FoodListingSoldOut(id, Instant.now()));
+        }
+    }
+
+    public void requestDonation(int quantity, LocalDateTime now) {
+        if (!isDonation()) {
+            throw new IllegalStateException("only donation listings can receive donation requests");
+        }
+        if (status != ListingStatus.AVAILABLE && status != ListingStatus.REQUESTED) {
+            throw new IllegalStateException("listing is not available for donation requests");
+        }
+        ensureNotExpired(now);
+        int requested = new Quantity(quantity).value();
+        if (requested > availableUnits()) {
+            throw new IllegalStateException("requested quantity exceeds availability");
+        }
+        quantityReserved += requested;
+        status = availableUnits() == 0 ? ListingStatus.SOLD_OUT : ListingStatus.REQUESTED;
         version++;
         record(new PackReserved(id, requested, Instant.now()));
         if (status == ListingStatus.SOLD_OUT) {

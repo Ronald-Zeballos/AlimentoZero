@@ -113,7 +113,6 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- Pact Provider (Spring 6 / Spring Boot 3) -->
@@ -171,6 +170,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
                     <excludedGroups>${surefire.excluded.groups}</excludedGroups>
                     <groups>${surefire.groups}</groups>
                     <systemPropertyVariables>

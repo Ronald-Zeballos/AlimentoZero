@@ -16,7 +16,7 @@ import java.util.Map;
  * Logs registered LlmChatPort beans to verify correct wiring in dev profile.
  */
 @Configuration
-@Profile("dev")
+@Profile({"dev", "demo"})
 public class DevWiringSanityConfig {
 
     private static final Logger log = LoggerFactory.getLogger(DevWiringSanityConfig.class);

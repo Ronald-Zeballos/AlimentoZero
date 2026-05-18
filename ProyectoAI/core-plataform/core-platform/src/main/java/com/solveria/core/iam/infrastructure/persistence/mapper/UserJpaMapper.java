@@ -37,9 +37,16 @@ public class UserJpaMapper {
                 entity.getId(),
                 entity.getUsername(),
                 entity.getEmail(),
+                entity.getDisplayName(),
                 entity.isActive(),
                 roleIds,
                 entity.getTenantId(),
+                entity.getProfileKey(),
+                entity.getActorType(),
+                entity.getActorId(),
+                entity.getOrganizationId(),
+                entity.getLandingRoute(),
+                entity.getSuggestedObjective(),
                 entity.getVersion(),
                 entity.getCreatedAt(),
                 entity.getCreatedBy(),
@@ -63,8 +70,33 @@ public class UserJpaMapper {
 
         UserJpaEntity entity =
                 new UserJpaEntity(domain.getUsername(), domain.getEmail(), domain.isActive());
+        entity.setDisplayName(domain.getDisplayName());
         entity.setTenantId(domain.getTenantId());
+        entity.setProfileKey(domain.getProfileKey());
+        entity.setActorType(domain.getActorType());
+        entity.setActorId(domain.getActorId());
+        entity.setOrganizationId(domain.getOrganizationId());
+        entity.setLandingRoute(domain.getLandingRoute());
+        entity.setSuggestedObjective(domain.getSuggestedObjective());
         entity.assignRoles(roles);
         return entity;
+    }
+
+    public void updateEntity(UserJpaEntity entity, User domain, Set<RoleJpaEntity> roles) {
+        if (entity == null || domain == null) {
+            return;
+        }
+
+        entity.setUsername(domain.getUsername());
+        entity.setEmail(domain.getEmail());
+        entity.setDisplayName(domain.getDisplayName());
+        entity.setActive(domain.isActive());
+        entity.setProfileKey(domain.getProfileKey());
+        entity.setActorType(domain.getActorType());
+        entity.setActorId(domain.getActorId());
+        entity.setOrganizationId(domain.getOrganizationId());
+        entity.setLandingRoute(domain.getLandingRoute());
+        entity.setSuggestedObjective(domain.getSuggestedObjective());
+        entity.assignRoles(roles);
     }
 }

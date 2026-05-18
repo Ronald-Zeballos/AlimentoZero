@@ -6,6 +6,7 @@ import com.solveria.core.iam.infrastructure.persistence.entity.RoleJpaEntity;
 import com.solveria.core.iam.infrastructure.persistence.mapper.UserJpaMapper;
 import com.solveria.core.iam.infrastructure.persistence.repository.RoleJpaRepository;
 import com.solveria.core.iam.infrastructure.persistence.repository.UserJpaRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,8 +34,17 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public Optional<User> findByUsernameIgnoreCaseAndTenantId(String username, String tenantId) {
+        return userJpaRepository.findByUsernameIgnoreCaseAndTenantId(username, tenantId).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<User> findAllByTenantId(String tenantId) {
+        return userJpaRepository.findAllByTenantId(tenantId).stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     public User save(User user) {
-        // Load RoleJpaEntity entities from IDs
         Set<RoleJpaEntity> roles =
                 user.getRoleIds().stream()
                         .map(
@@ -48,7 +58,17 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
                                                                                 + roleId)))
                         .collect(Collectors.toSet());
 
-        var entity = mapper.toEntity(user, roles);
+        var entity =
+                user.getId() != null
+                        ? userJpaRepository.findById(user.getId()).orElseGet(() -> mapper.toEntity(user, roles))
+                        : userJpaRepository
+                                .findByUsernameIgnoreCaseAndTenantId(user.getUsername(), user.getTenantId())
+                                .orElseGet(() -> mapper.toEntity(user, roles));
+
+        mapper.updateEntity(entity, user, roles);
+        if (entity.getTenantId() == null) {
+            entity.setTenantId(user.getTenantId());
+        }
         var saved = userJpaRepository.save(entity);
         return mapper.toDomain(saved);
     }

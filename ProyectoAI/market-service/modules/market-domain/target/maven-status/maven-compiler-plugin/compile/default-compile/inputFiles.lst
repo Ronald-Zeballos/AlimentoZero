@@ -4,7 +4,10 @@ C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-do
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\event\FoodListingSoldOut.java
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\event\MarketDomainEvent.java
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\event\PackReserved.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\model\DonationRequest.java
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\model\FoodListing.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\model\RescueOrder.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\valueobject\DonationRequestStatus.java
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\valueobject\FoodCondition.java
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\valueobject\ImpactEstimate.java
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\valueobject\ListingStatus.java
@@ -13,3 +16,4 @@ C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-do
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\valueobject\Money.java
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\valueobject\PickupWindow.java
 C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\valueobject\Quantity.java
+C:\Users\Ronald\Downloads\ProyectoAI\ProyectoAI\market-service\modules\market-domain\src\main\java\com\solveria\market\domain\valueobject\RescueOrderStatus.java

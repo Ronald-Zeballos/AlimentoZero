@@ -58,7 +58,17 @@ public class RoleJpaMapper {
         }
 
         RoleJpaEntity entity = new RoleJpaEntity(domain.getName(), domain.getDescription());
-        entity.setTenantId(domain.getTenantId());
+        updateEntity(domain, entity);
         return entity;
+    }
+
+    public void updateEntity(Role domain, RoleJpaEntity entity) {
+        if (domain == null || entity == null) {
+            return;
+        }
+
+        entity.setName(domain.getName());
+        entity.setDescription(domain.getDescription());
+        entity.setTenantId(domain.getTenantId());
     }
 }

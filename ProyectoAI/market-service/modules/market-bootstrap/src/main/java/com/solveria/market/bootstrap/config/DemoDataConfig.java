@@ -25,7 +25,7 @@ public class DemoDataConfig {
             }
 
             seed(repository,
-                    "tenant-demo",
+                    "demo-tenant",
                     "merchant-panaderia-luna",
                     "Pack sorpresa de panadería",
                     "Facturas, medialunas y pan del día para retirar esta tarde.",
@@ -46,7 +46,7 @@ public class DemoDataConfig {
                     "Sopocachi");
 
             seed(repository,
-                    "tenant-demo",
+                    "demo-tenant",
                     "merchant-verde-sur",
                     "Donación de verduras frescas",
                     "Cajones con tomate, zanahoria y hojas verdes listas para comedor social.",
@@ -67,7 +67,7 @@ public class DemoDataConfig {
                     "Centro");
 
             seed(repository,
-                    "tenant-demo",
+                    "demo-tenant",
                     "merchant-sushi-go",
                     "Combo sushi rescate",
                     "Rolls del turno tarde con descuento para retiro rápido.",
@@ -88,7 +88,7 @@ public class DemoDataConfig {
                     "San Miguel");
 
             seed(repository,
-                    "tenant-demo",
+                    "demo-tenant",
                     "merchant-cafe-norte",
                     "Donación de pastelería",
                     "Budines y muffins para retiro coordinado por ONG receptora.",
@@ -109,7 +109,7 @@ public class DemoDataConfig {
                     "Miraflores");
 
             seed(repository,
-                    "tenant-demo",
+                    "demo-tenant",
                     "merchant-brasa-viva",
                     "Packs económicos del almuerzo",
                     "Platos preparados del día con retiro antes de las 20:00.",

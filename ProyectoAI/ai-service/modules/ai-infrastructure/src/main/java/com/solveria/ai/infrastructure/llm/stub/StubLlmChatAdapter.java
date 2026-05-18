@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * Only created if no other LlmChatPort bean exists.
  */
 @Component
-@Profile({"dev", "test"})
+@Profile({"dev", "test", "demo"})
 @ConditionalOnMissingBean(LlmChatPort.class)
 public class StubLlmChatAdapter implements LlmChatPort {
 

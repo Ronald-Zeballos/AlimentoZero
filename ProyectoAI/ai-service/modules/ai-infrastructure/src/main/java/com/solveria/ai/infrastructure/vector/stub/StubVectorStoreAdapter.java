@@ -12,7 +12,7 @@ import java.util.List;
  * Returns empty results for development and testing without requiring embeddings.
  */
 @Component
-@Profile({"dev", "test"})
+@Profile({"dev", "test", "demo"})
 public class StubVectorStoreAdapter implements VectorStorePort {
 
     @Override

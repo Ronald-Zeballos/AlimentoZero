@@ -31,8 +31,6 @@ import java.util.Set;
  * @see com.solveria.core.iam.domain.model.Role
  * @see <a href="../../../../../../adr/ADR-001-jpa-in-domain-technical-debt.md">ADR-001</a>
  */
-@Entity
-@Table(name = "iam_role")
 public class RoleJpaEntityExample extends BaseEntity {
 
     @Column(nullable = false)

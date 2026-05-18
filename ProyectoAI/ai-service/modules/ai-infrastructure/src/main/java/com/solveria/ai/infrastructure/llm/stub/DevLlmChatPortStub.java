@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Primary
-@Profile({"dev", "test"})
+@Profile({"dev", "test", "demo"})
 public class DevLlmChatPortStub implements LlmChatPort {
 
     private static final Logger log = LoggerFactory.getLogger(DevLlmChatPortStub.class);
