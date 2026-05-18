@@ -12,4 +12,6 @@ public interface RescueOrderRepository {
     Optional<RescueOrder> findById(UUID id);
 
     List<RescueOrder> findAllByTenantIdAndBuyerId(String tenantId, String buyerId);
+
+    List<RescueOrder> findAllByTenantId(String tenantId);
 }

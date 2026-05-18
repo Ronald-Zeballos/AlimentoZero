@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.solveria.ai.application.dto.MarketBriefingCommandDto;
 import com.solveria.ai.application.dto.RecommendListingsCommandDto;
 import com.solveria.ai.application.dto.RecommendationCandidateDto;
 import com.solveria.ai.application.dto.RecommendationObjective;
@@ -138,5 +139,34 @@ class RecommendListingsServiceTest {
         assertEquals("route-1", result.recommendations().getFirst().listingId());
         assertTrue(result.recommendations().getFirst().reasons().contains(
                 "Conviene asignarlo a una ruta operativa"));
+    }
+
+    @Test
+    void briefing_generatesOperationalSummaryForMerchantProfile() {
+        var recommendationService = new RecommendListingsService(tenantContextPort);
+        var briefingService = new GenerateMarketBriefingService(recommendationService);
+
+        var result = briefingService.generate(new MarketBriefingCommandDto(
+                RecommendationObjective.MERCHANT_RECOVERY,
+                "MERCHANT_BAKERY",
+                List.of(
+                        new RecommendationCandidateDto(
+                                "sale-1",
+                                "Combo panaderia",
+                                "Bakery",
+                                "DISCOUNTED_SALE",
+                                22,
+                                6,
+                                1.2,
+                                3,
+                                false,
+                                8)),
+                List.of("Bakery"),
+                30.0,
+                5.0));
+
+        assertEquals("MERCHANT_BAKERY", result.profileKey());
+        assertTrue(result.headline().contains("rotacion"));
+        assertFalse(result.priorityActions().isEmpty());
     }
 }

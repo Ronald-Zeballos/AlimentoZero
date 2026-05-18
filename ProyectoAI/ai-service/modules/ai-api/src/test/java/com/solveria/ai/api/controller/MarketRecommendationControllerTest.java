@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.solveria.ai.application.dto.RecommendationObjective;
 import com.solveria.ai.application.dto.RecommendationResultDto;
 import com.solveria.ai.application.dto.RecommendedListingDto;
+import com.solveria.ai.application.dto.MarketBriefingResultDto;
+import com.solveria.ai.application.port.in.GenerateMarketBriefingUseCase;
 import com.solveria.ai.application.port.in.RecommendListingsUseCase;
 import java.time.Instant;
 import java.util.List;
@@ -31,9 +33,14 @@ class MarketRecommendationControllerTest {
     @Mock
     private RecommendListingsUseCase recommendListingsUseCase;
 
+    @Mock
+    private GenerateMarketBriefingUseCase generateMarketBriefingUseCase;
+
     @BeforeEach
     void setUp() {
-        mvc = MockMvcBuilders.standaloneSetup(new MarketRecommendationController(recommendListingsUseCase))
+        mvc = MockMvcBuilders.standaloneSetup(
+                        new MarketRecommendationController(
+                                recommendListingsUseCase, generateMarketBriefingUseCase))
                 .setMessageConverters(new MappingJackson2HttpMessageConverter())
                 .build();
     }
@@ -92,5 +99,56 @@ class MarketRecommendationControllerTest {
                 .andExpect(jsonPath("$[0].code").value("BUYER_DISCOVERY"))
                 .andExpect(jsonPath("$[3].code").value("MERCHANT_RECOVERY"))
                 .andExpect(jsonPath("$[4].recommendedProfiles[0]").value("TRANSPORT_LAST_MILE"));
+    }
+
+    @Test
+    void briefing_returnsOperationalInsights() throws Exception {
+        when(generateMarketBriefingUseCase.generate(any()))
+                .thenReturn(new MarketBriefingResultDto(
+                        "demo-tenant",
+                        "demo-user",
+                        RecommendationObjective.MERCHANT_RECOVERY,
+                        "MERCHANT_BAKERY",
+                        "Estas ofertas concentran la mejor opcion de rotacion antes del vencimiento.",
+                        "Combo panaderia ofrece la mayor probabilidad de recuperar margen sin dejar que el stock expire.",
+                        List.of("Promocionar Combo panaderia como prioridad comercial de bakery."),
+                        List.of("Hay 1 publicaciones que requieren atencion en las proximas horas."),
+                        List.of(new RecommendedListingDto(
+                                "sale-1",
+                                "Combo panaderia",
+                                84.9,
+                                true,
+                                List.of("Vence en 3 h"))),
+                        Instant.parse("2026-05-18T00:00:00Z")));
+
+        mvc.perform(post("/api/v1/ai/market/briefings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "objective": "MERCHANT_RECOVERY",
+                                  "profileKey": "MERCHANT_BAKERY",
+                                  "preferredCategories": ["Bakery"],
+                                  "maxPrice": 30,
+                                  "maxDistanceKm": 5,
+                                  "listings": [
+                                    {
+                                      "id": "sale-1",
+                                      "title": "Combo panaderia",
+                                      "category": "Bakery",
+                                      "listingType": "DISCOUNTED_SALE",
+                                      "rescuePrice": 22,
+                                      "quantityAvailable": 6,
+                                      "distanceKm": 1.2,
+                                      "hoursToExpire": 3,
+                                      "requiresTransport": false,
+                                      "mealsEquivalent": 8
+                                    }
+                                  ]
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.profileKey").value("MERCHANT_BAKERY"))
+                .andExpect(jsonPath("$.priorityActions[0]").exists())
+                .andExpect(jsonPath("$.recommendations[0].listingId").value("sale-1"));
     }
 }

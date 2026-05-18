@@ -392,6 +392,60 @@ select {
   border: 1px solid rgba(255, 56, 92, 0.09);
 }
 
+.session-card,
+.insights-card,
+.order-card,
+.panel-card {
+  padding: 20px;
+}
+
+.profile-switcher__row,
+.profile-switcher__field {
+  display: grid;
+  gap: 10px;
+}
+
+.profile-switcher__row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.profile-switcher__meta {
+  min-width: 120px;
+  border-radius: 18px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 244, 241, 0.8);
+  display: grid;
+  gap: 4px;
+  text-align: center;
+}
+
+.profile-switcher__meta strong {
+  font-size: 1.6rem;
+}
+
+.profile-objective,
+.insight-list {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 244, 241, 0.68);
+  border: 1px solid rgba(255, 56, 92, 0.08);
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pill.live {
+  background: rgba(16, 185, 129, 0.14);
+  color: var(--success);
+}
+
 .bottom-nav {
   position: fixed;
   left: 50%;
@@ -457,5 +511,12 @@ select {
 
   .horizontal-scroll {
     grid-auto-columns: 42%;
+  }
+}
+
+@media (max-width: 719px) {
+  .insights-grid,
+  .profile-switcher__row {
+    grid-template-columns: 1fr;
   }
 }

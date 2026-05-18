@@ -26,7 +26,7 @@ public class DemoDataConfig {
 
             seed(repository,
                     "demo-tenant",
-                    "merchant-panaderia-luna",
+                    "merchant-la-paz",
                     "Pack sorpresa de panadería",
                     "Facturas, medialunas y pan del día para retirar esta tarde.",
                     "Bakery",

@@ -34,4 +34,12 @@ public class InMemoryDonationRequestRepositoryAdapter implements DonationRequest
                 .sorted(Comparator.comparing(DonationRequest::createdAt).reversed())
                 .toList();
     }
+
+    @Override
+    public List<DonationRequest> findAllByTenantId(String tenantId) {
+        return storage.values().stream()
+                .filter(request -> request.tenantId().equalsIgnoreCase(tenantId))
+                .sorted(Comparator.comparing(DonationRequest::createdAt).reversed())
+                .toList();
+    }
 }

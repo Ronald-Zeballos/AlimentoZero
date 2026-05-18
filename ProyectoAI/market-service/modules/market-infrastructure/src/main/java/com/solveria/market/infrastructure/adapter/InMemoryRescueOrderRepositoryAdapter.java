@@ -34,4 +34,12 @@ public class InMemoryRescueOrderRepositoryAdapter implements RescueOrderReposito
                 .sorted(Comparator.comparing(RescueOrder::createdAt).reversed())
                 .toList();
     }
+
+    @Override
+    public List<RescueOrder> findAllByTenantId(String tenantId) {
+        return storage.values().stream()
+                .filter(order -> order.tenantId().equalsIgnoreCase(tenantId))
+                .sorted(Comparator.comparing(RescueOrder::createdAt).reversed())
+                .toList();
+    }
 }

@@ -32,4 +32,21 @@ public class InMemoryFoodListingRepositoryAdapter implements FoodListingReposito
                 .sorted(Comparator.comparing(FoodListing::expirationDate))
                 .toList();
     }
+
+    @Override
+    public List<FoodListing> findAllByTenantId(String tenantId) {
+        return storage.values().stream()
+                .filter(listing -> listing.tenantId().equalsIgnoreCase(tenantId))
+                .sorted(Comparator.comparing(FoodListing::expirationDate))
+                .toList();
+    }
+
+    @Override
+    public List<FoodListing> findAllByTenantIdAndMerchantId(String tenantId, String merchantId) {
+        return storage.values().stream()
+                .filter(listing -> listing.tenantId().equalsIgnoreCase(tenantId))
+                .filter(listing -> listing.merchantId().equalsIgnoreCase(merchantId))
+                .sorted(Comparator.comparing(FoodListing::expirationDate))
+                .toList();
+    }
 }

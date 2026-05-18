@@ -6,6 +6,7 @@ import com.solveria.market.application.port.in.CreateFoodListingUseCase;
 import com.solveria.market.application.port.in.CreateDonationRequestUseCase;
 import com.solveria.market.application.port.in.CreateRescueOrderUseCase;
 import com.solveria.market.application.port.in.GetListingDetailUseCase;
+import com.solveria.market.application.port.in.GetMarketplaceDashboardSummaryUseCase;
 import com.solveria.market.application.port.in.ListDonationRequestsUseCase;
 import com.solveria.market.application.port.in.ListFoodListingsUseCase;
 import com.solveria.market.application.port.in.ListRescueOrdersUseCase;
@@ -20,6 +21,7 @@ import com.solveria.market.application.service.CreateDonationRequestService;
 import com.solveria.market.application.service.CreateFoodListingService;
 import com.solveria.market.application.service.CreateRescueOrderService;
 import com.solveria.market.application.service.GetListingDetailService;
+import com.solveria.market.application.service.GetMarketplaceDashboardSummaryService;
 import com.solveria.market.application.service.ListDonationRequestsService;
 import com.solveria.market.application.service.ListFoodListingsService;
 import com.solveria.market.application.service.ListRescueOrdersService;
@@ -54,6 +56,15 @@ public class UseCaseConfig {
     @Bean
     public ListFoodListingsUseCase listFoodListingsUseCase(FoodListingRepository repository) {
         return new ListFoodListingsService(repository);
+    }
+
+    @Bean
+    public GetMarketplaceDashboardSummaryUseCase getMarketplaceDashboardSummaryUseCase(
+            FoodListingRepository foodListingRepository,
+            RescueOrderRepository rescueOrderRepository,
+            DonationRequestRepository donationRequestRepository) {
+        return new GetMarketplaceDashboardSummaryService(
+                foodListingRepository, rescueOrderRepository, donationRequestRepository);
     }
 
     @Bean

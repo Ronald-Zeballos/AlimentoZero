@@ -74,6 +74,21 @@ class MarketplaceProfileControllerTest {
                     }
 
                     @Override
+                    public List<MarketplaceProfileResponse> listTenantProfiles(String tenantId, String actorType) {
+                        return listTenantProfiles(tenantId).stream()
+                                .filter(profile -> actorType == null || profile.actorType().equals(actorType))
+                                .toList();
+                    }
+
+                    @Override
+                    public MarketplaceProfileResponse getTenantProfile(String tenantId, String profileKey) {
+                        return listTenantProfiles(tenantId).stream()
+                                .filter(profile -> profile.profileKey().equals(profileKey))
+                                .findFirst()
+                                .orElseThrow();
+                    }
+
+                    @Override
                     public BootstrapMarketplaceProfilesResponse bootstrapTenant(String tenantId) {
                         return new BootstrapMarketplaceProfilesResponse(
                                 tenantId,
@@ -95,6 +110,23 @@ class MarketplaceProfileControllerTest {
                 .andExpect(jsonPath("$[0].profileKey").value("BUYER_NEIGHBOR"))
                 .andExpect(jsonPath("$[1].actorId").value("merchant-la-paz"))
                 .andExpect(jsonPath("$[1].suggestedObjective").value("MERCHANT_RECOVERY"));
+    }
+
+    @Test
+    void listProfiles_canFilterByActorType() throws Exception {
+        mvc.perform(get("/api/v1/iam/profiles")
+                        .header("X-Tenant-Id", "demo-tenant")
+                        .param("actorType", "MERCHANT"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].profileKey").value("MERCHANT_BAKERY"));
+    }
+
+    @Test
+    void getProfile_returnsSingleMarketplaceProfile() throws Exception {
+        mvc.perform(get("/api/v1/iam/profiles/MERCHANT_BAKERY").header("X-Tenant-Id", "demo-tenant"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Panaderia aliada"))
+                .andExpect(jsonPath("$.actorId").value("merchant-la-paz"));
     }
 
     @Test

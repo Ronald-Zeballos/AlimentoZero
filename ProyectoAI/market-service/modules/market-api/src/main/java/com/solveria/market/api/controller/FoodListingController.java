@@ -17,6 +17,7 @@ import com.solveria.market.domain.valueobject.PickupWindow;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -53,8 +55,17 @@ public class FoodListingController {
 
     @GetMapping({"", "/"})
     @Operation(summary = "List rescue listings")
-    public ResponseEntity<java.util.List<FoodListingResponse>> list() {
+    public ResponseEntity<List<FoodListingResponse>> list(
+            @RequestParam(required = false) String merchantId,
+            @RequestParam(required = false) String listingType,
+            @RequestParam(required = false) String status) {
         var listings = listFoodListingsUseCase.listAll().stream()
+                .filter(listing -> merchantId == null || merchantId.isBlank()
+                        || listing.merchantId().equalsIgnoreCase(merchantId))
+                .filter(listing -> listingType == null || listingType.isBlank()
+                        || listing.listingType().name().equalsIgnoreCase(listingType))
+                .filter(listing -> status == null || status.isBlank()
+                        || listing.status().name().equalsIgnoreCase(status))
                 .map(FoodListingResponse::from)
                 .toList();
         return ResponseEntity.ok(listings);

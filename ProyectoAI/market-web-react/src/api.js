@@ -1,17 +1,24 @@
+import { DEFAULT_TENANT_ID } from "./constants";
+
 const JSON_HEADERS = {
   "Content-Type": "application/json"
 };
-const DEMO_TENANT_ID = "demo-tenant";
-const DEMO_MERCHANT_ID = "merchant-la-paz";
-const DEMO_BUYER_ID = "buyer-demo";
-const DEMO_REQUESTER_ID = "ngo-user-demo";
-const DEMO_RECEIVER_ORG_ID = "fundacion-banco-alimentos";
 
-function withTenantHeaders(headers = {}) {
+function withTenantHeaders(tenantId = DEFAULT_TENANT_ID, headers = {}) {
   return {
     ...headers,
-    "X-Tenant-Id": DEMO_TENANT_ID
+    "X-Tenant-Id": tenantId
   };
+}
+
+function buildQuery(params = {}) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      search.set(key, value);
+    }
+  });
+  return search.toString();
 }
 
 async function parseJsonResponse(response) {
@@ -22,8 +29,9 @@ async function parseJsonResponse(response) {
   return response.json();
 }
 
-export async function fetchListings() {
-  const response = await fetch("/market-api/listings");
+export async function fetchListings(filters = {}) {
+  const query = buildQuery(filters);
+  const response = await fetch(`/market-api/listings${query ? `?${query}` : ""}`);
   return parseJsonResponse(response);
 }
 
@@ -32,12 +40,12 @@ export async function fetchListingById(id) {
   return parseJsonResponse(response);
 }
 
-export async function createListing(payload) {
+export async function createListing(payload, { tenantId = DEFAULT_TENANT_ID, merchantId } = {}) {
   const response = await fetch("/market-api/listings", {
     method: "POST",
-    headers: withTenantHeaders({
+    headers: withTenantHeaders(tenantId, {
       ...JSON_HEADERS,
-      "X-Merchant-Id": DEMO_MERCHANT_ID
+      "X-Merchant-Id": merchantId
     }),
     body: JSON.stringify(payload)
   });
@@ -51,32 +59,28 @@ export async function publishListing(id) {
   return parseJsonResponse(response);
 }
 
-export async function reserveListing(id, quantity) {
-  const response = await fetch(`/market-api/listings/${id}/reserve`, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({ quantity })
-  });
-  return parseJsonResponse(response);
-}
-
-export async function createRescueOrder(listingId, quantity) {
+export async function createRescueOrder(listingId, quantity, { buyerId }) {
   const response = await fetch("/market-api/orders", {
     method: "POST",
     headers: JSON_HEADERS,
     body: JSON.stringify({
       listingId,
-      buyerId: DEMO_BUYER_ID,
+      buyerId,
       quantity
     })
   });
   return parseJsonResponse(response);
 }
 
-export async function fetchBuyerOrders() {
-  const response = await fetch(`/market-api/orders?buyerId=${encodeURIComponent(DEMO_BUYER_ID)}`, {
-    headers: withTenantHeaders()
-  });
+export async function fetchBuyerOrders({ tenantId = DEFAULT_TENANT_ID, buyerId }) {
+  const response = await fetch(
+    `/market-api/orders?${buildQuery({
+      buyerId
+    })}`,
+    {
+      headers: withTenantHeaders(tenantId)
+    }
+  );
   return parseJsonResponse(response);
 }
 
@@ -87,25 +91,34 @@ export async function confirmRescueOrderPickup(orderId) {
   return parseJsonResponse(response);
 }
 
-export async function createDonationRequest(listingId, quantity) {
+export async function createDonationRequest(
+  listingId,
+  quantity,
+  { requesterId, receiverOrgId }
+) {
   const response = await fetch("/market-api/donation-requests", {
     method: "POST",
     headers: JSON_HEADERS,
     body: JSON.stringify({
       listingId,
-      requesterId: DEMO_REQUESTER_ID,
-      receiverOrgId: DEMO_RECEIVER_ORG_ID,
+      requesterId,
+      receiverOrgId,
       quantity
     })
   });
   return parseJsonResponse(response);
 }
 
-export async function fetchDonationRequests() {
+export async function fetchDonationRequests({
+  tenantId = DEFAULT_TENANT_ID,
+  receiverOrgId
+}) {
   const response = await fetch(
-    `/market-api/donation-requests?receiverOrgId=${encodeURIComponent(DEMO_RECEIVER_ORG_ID)}`,
+    `/market-api/donation-requests?${buildQuery({
+      receiverOrgId
+    })}`,
     {
-      headers: withTenantHeaders()
+      headers: withTenantHeaders(tenantId)
     }
   );
   return parseJsonResponse(response);
@@ -118,7 +131,32 @@ export async function approveDonationRequest(requestId) {
   return parseJsonResponse(response);
 }
 
-export async function recommendListings({ objective, listings, preferredCategories, maxPrice, maxDistanceKm }) {
+export async function fetchDashboardSummary({
+  tenantId = DEFAULT_TENANT_ID,
+  actorType,
+  actorId,
+  organizationId
+}) {
+  const response = await fetch(
+    `/market-api/dashboard/summary?${buildQuery({
+      actorType,
+      actorId,
+      organizationId
+    })}`,
+    {
+      headers: withTenantHeaders(tenantId)
+    }
+  );
+  return parseJsonResponse(response);
+}
+
+export async function recommendListings({
+  objective,
+  listings,
+  preferredCategories,
+  maxPrice,
+  maxDistanceKm
+}) {
   const response = await fetch("/ai-api/market/recommendations", {
     method: "POST",
     headers: JSON_HEADERS,
@@ -133,22 +171,75 @@ export async function recommendListings({ objective, listings, preferredCategori
   return parseJsonResponse(response);
 }
 
+export async function fetchMarketBriefing({
+  objective,
+  profileKey,
+  listings,
+  preferredCategories,
+  maxPrice,
+  maxDistanceKm
+}) {
+  const response = await fetch("/ai-api/market/briefings", {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
+      objective,
+      profileKey,
+      listings,
+      preferredCategories,
+      maxPrice,
+      maxDistanceKm
+    })
+  });
+  return parseJsonResponse(response);
+}
+
+export async function fetchRecommendationObjectives() {
+  const response = await fetch("/ai-api/market/objectives");
+  return parseJsonResponse(response);
+}
+
 export async function fetchMarketplaceRoleCatalog() {
   const response = await fetch("/iam-api/roles/catalog/marketplace");
   return parseJsonResponse(response);
 }
 
-export async function fetchTenantRoles() {
+export async function fetchTenantRoles(tenantId = DEFAULT_TENANT_ID) {
   const response = await fetch("/iam-api/roles", {
-    headers: withTenantHeaders()
+    headers: withTenantHeaders(tenantId)
   });
   return parseJsonResponse(response);
 }
 
-export async function bootstrapMarketplaceRoles() {
+export async function bootstrapMarketplaceRoles(tenantId = DEFAULT_TENANT_ID) {
   const response = await fetch("/iam-api/roles/bootstrap/marketplace", {
     method: "POST",
-    headers: withTenantHeaders()
+    headers: withTenantHeaders(tenantId)
+  });
+  return parseJsonResponse(response);
+}
+
+export async function fetchMarketplaceProfiles({
+  tenantId = DEFAULT_TENANT_ID,
+  actorType
+} = {}) {
+  const response = await fetch(`/iam-api/profiles?${buildQuery({ actorType })}`, {
+    headers: withTenantHeaders(tenantId)
+  });
+  return parseJsonResponse(response);
+}
+
+export async function fetchMarketplaceProfile(profileKey, tenantId = DEFAULT_TENANT_ID) {
+  const response = await fetch(`/iam-api/profiles/${profileKey}`, {
+    headers: withTenantHeaders(tenantId)
+  });
+  return parseJsonResponse(response);
+}
+
+export async function bootstrapMarketplaceProfiles(tenantId = DEFAULT_TENANT_ID) {
+  const response = await fetch("/iam-api/profiles/bootstrap/marketplace", {
+    method: "POST",
+    headers: withTenantHeaders(tenantId)
   });
   return parseJsonResponse(response);
 }

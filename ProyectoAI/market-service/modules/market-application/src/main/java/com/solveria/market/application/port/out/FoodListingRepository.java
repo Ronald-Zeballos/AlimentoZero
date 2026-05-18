@@ -12,4 +12,8 @@ public interface FoodListingRepository {
     Optional<FoodListing> findById(UUID id);
 
     List<FoodListing> findAll();
+
+    List<FoodListing> findAllByTenantId(String tenantId);
+
+    List<FoodListing> findAllByTenantIdAndMerchantId(String tenantId, String merchantId);
 }

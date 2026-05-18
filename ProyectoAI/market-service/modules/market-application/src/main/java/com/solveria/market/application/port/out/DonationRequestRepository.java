@@ -12,4 +12,6 @@ public interface DonationRequestRepository {
     Optional<DonationRequest> findById(UUID id);
 
     List<DonationRequest> findAllByTenantIdAndReceiverOrgId(String tenantId, String receiverOrgId);
+
+    List<DonationRequest> findAllByTenantId(String tenantId);
 }

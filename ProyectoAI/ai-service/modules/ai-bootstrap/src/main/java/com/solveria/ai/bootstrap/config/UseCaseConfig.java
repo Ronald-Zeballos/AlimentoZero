@@ -1,6 +1,7 @@
 package com.solveria.ai.bootstrap.config;
 
 import com.solveria.ai.application.port.in.CompletePromptUseCase;
+import com.solveria.ai.application.port.in.GenerateMarketBriefingUseCase;
 import com.solveria.ai.application.port.in.RecommendListingsUseCase;
 import com.solveria.ai.application.port.in.RagQaUseCase;
 import com.solveria.ai.application.port.out.AuditPort;
@@ -9,6 +10,7 @@ import com.solveria.ai.application.port.out.LlmPort;
 import com.solveria.ai.application.port.out.TenantContextPort;
 import com.solveria.ai.application.port.out.VectorStorePort;
 import com.solveria.ai.application.service.CompletePromptService;
+import com.solveria.ai.application.service.GenerateMarketBriefingService;
 import com.solveria.ai.application.service.RecommendListingsService;
 import com.solveria.ai.application.service.RagQaService;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +27,12 @@ public class UseCaseConfig {
     @Bean
     public RecommendListingsUseCase recommendListingsUseCase(TenantContextPort tenantContextPort) {
         return new RecommendListingsService(tenantContextPort);
+    }
+
+    @Bean
+    public GenerateMarketBriefingUseCase generateMarketBriefingUseCase(
+            RecommendListingsUseCase recommendListingsUseCase) {
+        return new GenerateMarketBriefingService(recommendListingsUseCase);
     }
 
     @Bean

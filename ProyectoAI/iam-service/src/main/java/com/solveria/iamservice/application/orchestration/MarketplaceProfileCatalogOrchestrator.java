@@ -8,6 +8,7 @@ import com.solveria.iamservice.application.dto.BootstrapMarketplaceProfilesRespo
 import com.solveria.iamservice.application.dto.MarketplaceProfileResponse;
 import com.solveria.iamservice.application.dto.MarketplaceProfileTemplateResponse;
 import java.util.List;
+import java.util.Locale;
 
 public class MarketplaceProfileCatalogOrchestrator {
 
@@ -41,9 +42,25 @@ public class MarketplaceProfileCatalogOrchestrator {
     }
 
     public List<MarketplaceProfileResponse> listTenantProfiles(String tenantId) {
+        return listTenantProfiles(tenantId, null);
+    }
+
+    public List<MarketplaceProfileResponse> listTenantProfiles(String tenantId, String actorType) {
         return listMarketplaceProfilesUseCase.execute(tenantId).stream()
+                .filter(user -> actorType == null
+                        || actorType.isBlank()
+                        || user.getActorType().toUpperCase(Locale.ROOT)
+                                .equals(actorType.toUpperCase(Locale.ROOT)))
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public MarketplaceProfileResponse getTenantProfile(String tenantId, String profileKey) {
+        return listMarketplaceProfilesUseCase.execute(tenantId).stream()
+                .filter(user -> user.getProfileKey().equalsIgnoreCase(profileKey))
+                .findFirst()
+                .map(this::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Marketplace profile not found: " + profileKey));
     }
 
     public BootstrapMarketplaceProfilesResponse bootstrapTenant(String tenantId) {
