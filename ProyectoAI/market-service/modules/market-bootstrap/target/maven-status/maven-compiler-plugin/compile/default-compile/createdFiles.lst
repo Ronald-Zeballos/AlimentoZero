@@ -1,0 +1,4 @@
+com\solveria\market\bootstrap\config\WebUiConfig.class
+com\solveria\market\bootstrap\MarketServiceApplication.class
+com\solveria\market\bootstrap\config\DemoDataConfig.class
+com\solveria\market\bootstrap\config\UseCaseConfig.class

@@ -1,0 +1,13 @@
+com\solveria\market\api\controller\RescueOrderController.class
+com\solveria\market\api\controller\DonationRequestController.class
+com\solveria\market\api\response\FoodListingResponse.class
+com\solveria\market\api\response\MarketplaceDashboardSummaryResponse.class
+com\solveria\market\api\response\RescueOrderResponse.class
+com\solveria\market\api\request\CreateRescueOrderRequest.class
+com\solveria\market\api\request\CreateFoodListingRequest.class
+com\solveria\market\api\response\CategorySnapshotResponse.class
+com\solveria\market\api\controller\FoodListingController.class
+com\solveria\market\api\request\ReservePackRequest.class
+com\solveria\market\api\controller\MarketplaceDashboardController.class
+com\solveria\market\api\response\DonationRequestResponse.class
+com\solveria\market\api\request\CreateDonationRequestRequest.class

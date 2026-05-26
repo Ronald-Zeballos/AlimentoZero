@@ -1,4 +1,8 @@
-import { resolveProfileNarrative } from "../utils/market";
+import {
+  resolveAudienceLabel,
+  resolveProfileDisplayName,
+  resolveProfileNarrative
+} from "../utils/market";
 
 export function ProfileSwitcher({
   profiles,
@@ -21,31 +25,39 @@ export function ProfileSwitcher({
     <section className="panel-card session-card">
       <div className="panel-card__header">
         <div>
-          <p className="eyebrow">Sesion operativa</p>
-          <h3>{currentProfile?.displayName || "Selecciona un perfil"}</h3>
+          <p className="eyebrow">Tu experiencia</p>
+          <h3>{resolveProfileDisplayName(currentProfile) || "Elige una vista"}</h3>
         </div>
-        <span className="pill">{currentProfile?.actorType || "Sin actor"}</span>
+        <span className="pill">{resolveAudienceLabel(currentProfile)}</span>
       </div>
       <p className="helper-text">{resolveProfileNarrative(currentProfile)}</p>
       <div className="profile-switcher__row">
-        <label className="profile-switcher__field">
-          Perfil activo
-          <select value={currentProfileKey} onChange={(event) => onSelectProfile(event.target.value)}>
-            {profiles.map((profile) => (
-              <option key={profile.profileKey} value={profile.profileKey}>
-                {profile.displayName}
-              </option>
-            ))}
-          </select>
-        </label>
+        {profiles.length > 1 ? (
+          <label className="profile-switcher__field">
+            Como quieres ver la app
+            <select value={currentProfileKey} onChange={(event) => onSelectProfile(event.target.value)}>
+              {profiles.map((profile) => (
+                <option key={profile.profileKey} value={profile.profileKey}>
+                  {resolveProfileDisplayName(profile)}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <div className="profile-switcher__field profile-switcher__field-readonly">
+            <span>Tipo de cuenta</span>
+            <strong>{resolveProfileDisplayName(currentProfile)}</strong>
+            <small>Esta experiencia esta ligada a tu cuenta.</small>
+          </div>
+        )}
         <div className="profile-switcher__meta">
           <strong>{roleCount}</strong>
-          <span>roles vinculados</span>
+          <span>accesos activos</span>
         </div>
       </div>
       {objective ? (
         <div className="profile-objective">
-          <strong>{objective.displayName}</strong>
+          <strong>Sugerencia inteligente: {objective.displayName}</strong>
           <p>{objective.description}</p>
         </div>
       ) : null}

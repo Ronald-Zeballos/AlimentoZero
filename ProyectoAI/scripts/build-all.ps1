@@ -85,7 +85,7 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "market-service build failed with exit code $LASTEXITCODE"
     }
-    Write-Host "âœ“ market-service built successfully" -ForegroundColor Green
+    Write-Host "✓ market-service built successfully" -ForegroundColor Green
 } finally {
     Pop-Location
 }

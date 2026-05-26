@@ -1,0 +1,3 @@
+com\solveria\market\infrastructure\adapter\InMemoryFoodListingRepositoryAdapter.class
+com\solveria\market\infrastructure\adapter\InMemoryDonationRequestRepositoryAdapter.class
+com\solveria\market\infrastructure\adapter\InMemoryRescueOrderRepositoryAdapter.class

@@ -30,6 +30,10 @@ spring:
       - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
       - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
 
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
   security:
     oauth2:
       resourceserver:
@@ -40,7 +44,7 @@ springdoc:
   api-docs:
     enabled: true
   swagger-ui:
-    enabled: true
+    enabled: false
 
 # CORS Configuration (DEV: permissive for local frontends)
 cors:

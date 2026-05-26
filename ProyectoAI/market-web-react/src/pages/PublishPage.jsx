@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createListing, publishListing } from "../api";
 import { CATEGORY_OPTIONS, DEFAULT_IMAGE } from "../constants";
+import { AppTopBar } from "../components/AppTopBar";
 import { SectionHeader } from "../components/SectionHeader";
+import { EmptyState } from "../components/StateViews";
 
-export function PublishPage({ currentProfile, tenantId, market, onToast }) {
+function MerchantPublishPage({ currentProfile, tenantId, market, onToast }) {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [listingType, setListingType] = useState("DISCOUNTED_SALE");
@@ -18,9 +20,9 @@ export function PublishPage({ currentProfile, tenantId, market, onToast }) {
     quantityAvailable: "5",
     city: "La Paz",
     address: "Av. 16 de Julio 1200",
-    pickupStart: "2026-05-18T15:00",
-    pickupEnd: "2026-05-18T20:00",
-    expirationDate: "2026-05-18T21:00",
+    pickupStart: "2026-05-26T15:00",
+    pickupEnd: "2026-05-26T20:00",
+    expirationDate: "2026-05-26T21:00",
     foodCondition: "READY_TO_EAT",
     requiresTransport: false,
     kgRescued: "6.5",
@@ -65,11 +67,13 @@ export function PublishPage({ currentProfile, tenantId, market, onToast }) {
   }
 
   return (
-    <div className="page-container">
-      <SectionHeader
-        eyebrow="Publicar"
-        title="Publica un excedente real"
-        subtitle="El formulario usa el merchant activo del perfil cargado desde IAM."
+    <>
+      <AppTopBar
+        currentProfile={currentProfile}
+        eyebrow="Publicacion de comercio"
+        title="Crea un pack como lo haria un partner comercial"
+        subtitle="Este formulario queda solo para el rol de comercio y ya usa el merchant real cargado desde IAM."
+        accent="merchant"
       />
       <form className="publish-form" onSubmit={handleSubmit}>
         <label>
@@ -198,6 +202,102 @@ export function PublishPage({ currentProfile, tenantId, market, onToast }) {
           {submitting ? "Publicando..." : "Publicar oferta"}
         </button>
       </form>
+    </>
+  );
+}
+
+function NonMerchantWorkspace({ currentProfile }) {
+  const roleBoards = {
+    BUYER: {
+      title: "Tu flujo no publica",
+      subtitle:
+        "Como comprador, este espacio cambia a una guia del recorrido: descubrir, reservar y retirar."
+    },
+    NGO: {
+      title: "Playbook de recepcion social",
+      subtitle:
+        "Tu trabajo se concentra en explorar donaciones y aprobar solicitudes, no en crear packs."
+    },
+    TRANSPORTER: {
+      title: "Base de operaciones",
+      subtitle:
+        "La logistica usa rutas y ventanas de retiro. Las publicaciones nacen en comercio o coordinacion."
+    },
+    COORDINATOR: {
+      title: "Centro de orquestacion",
+      subtitle:
+        "Coordinacion no publica como tienda; decide donde empujar rescate, transporte y ONG."
+    },
+    ADMIN: {
+      title: "Control administrativo",
+      subtitle:
+        "Admin usa IAM y catalogos. La generacion de oferta la ejecuta el comercio aliado."
+    }
+  };
+
+  const board = roleBoards[currentProfile?.actorType] || roleBoards.BUYER;
+
+  return (
+    <>
+      <AppTopBar
+        currentProfile={currentProfile}
+        eyebrow="Espacio de trabajo"
+        title={board.title}
+        subtitle={board.subtitle}
+        accent="default"
+      />
+      <section className="panel-card">
+        <SectionHeader
+          eyebrow="Separacion por rol"
+          title="Esta pantalla cambia segun el actor"
+          subtitle="Con esto ya no todos caen en el mismo formulario y cada perfil mantiene sentido operativo."
+        />
+        <div className="compact-stack">
+          <article className="mini-row">
+            <strong>Comprador</strong>
+            <span>Explora, reserva y retira</span>
+          </article>
+          <article className="mini-row">
+            <strong>ONG</strong>
+            <span>Solicita y gestiona donaciones</span>
+          </article>
+          <article className="mini-row">
+            <strong>Transportista</strong>
+            <span>Toma rutas urgentes</span>
+          </article>
+          <article className="mini-row">
+            <strong>Coordinador</strong>
+            <span>Prioriza y supervisa</span>
+          </article>
+          <article className="mini-row">
+            <strong>Admin</strong>
+            <span>Audita perfiles y roles</span>
+          </article>
+        </div>
+      </section>
+      <EmptyState
+        title="Solo comercio publica nuevos packs"
+        subtitle="Cambiar de perfil desde IAM te llevara a una vista distinta del sistema."
+        actionLabel="Ir a perfil"
+        to="/perfil"
+      />
+    </>
+  );
+}
+
+export function PublishPage({ currentProfile, tenantId, market, onToast }) {
+  return (
+    <div className="page-container">
+      {currentProfile?.actorType === "MERCHANT" ? (
+        <MerchantPublishPage
+          currentProfile={currentProfile}
+          tenantId={tenantId}
+          market={market}
+          onToast={onToast}
+        />
+      ) : (
+        <NonMerchantWorkspace currentProfile={currentProfile} />
+      )}
     </div>
   );
 }

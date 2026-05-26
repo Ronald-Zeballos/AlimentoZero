@@ -8,7 +8,10 @@ import {
 } from "../api";
 import { DEFAULT_TENANT_ID } from "../constants";
 
-export function useMarketplaceSession() {
+export function useMarketplaceSession({
+  preferredProfileKey = "",
+  accountDisplayName = ""
+} = {}) {
   const [tenantId] = useState(DEFAULT_TENANT_ID);
   const [profiles, setProfiles] = useState([]);
   const [currentProfileKey, setCurrentProfileKey] = useState("");
@@ -16,6 +19,22 @@ export function useMarketplaceSession() {
   const [objectives, setObjectives] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  function resolveDefaultProfileKey(nextProfiles, currentKey, explicitProfileKey) {
+    if (explicitProfileKey) {
+      return explicitProfileKey;
+    }
+
+    if (currentKey) {
+      return currentKey;
+    }
+
+    return (
+      nextProfiles.find((profile) => profile.actorType === "BUYER")?.profileKey ||
+      nextProfiles[0]?.profileKey ||
+      ""
+    );
+  }
 
   async function loadSession() {
     setLoading(true);
@@ -39,7 +58,9 @@ export function useMarketplaceSession() {
       setProfiles(nextProfiles);
       setRoles(tenantRoles);
       setObjectives(objectiveCatalog);
-      setCurrentProfileKey((current) => current || nextProfiles[0]?.profileKey || "");
+      setCurrentProfileKey((current) =>
+        resolveDefaultProfileKey(nextProfiles, current, preferredProfileKey)
+      );
     } catch {
       setError("No pudimos sincronizar perfiles, roles y objetivos desde IAM/AI.");
     } finally {
@@ -51,6 +72,21 @@ export function useMarketplaceSession() {
     loadSession();
   }, []);
 
+  useEffect(() => {
+    if (preferredProfileKey) {
+      setCurrentProfileKey(preferredProfileKey);
+    }
+  }, [preferredProfileKey]);
+
+  const matchedProfile =
+    profiles.find((profile) => profile.profileKey === currentProfileKey) || null;
+  const currentProfile = matchedProfile
+    ? {
+        ...matchedProfile,
+        displayName: accountDisplayName || matchedProfile.displayName
+      }
+    : null;
+
   return {
     tenantId,
     profiles,
@@ -58,7 +94,7 @@ export function useMarketplaceSession() {
     objectives,
     loading,
     error,
-    currentProfile: profiles.find((profile) => profile.profileKey === currentProfileKey) || null,
+    currentProfile,
     currentProfileKey,
     selectProfile: setCurrentProfileKey,
     reloadSession: loadSession
