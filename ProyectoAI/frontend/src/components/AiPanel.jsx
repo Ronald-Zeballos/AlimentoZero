@@ -232,15 +232,6 @@ export function AiPanel({ currentRole = null, currentTab = null, onNavigate, res
 
     const lower = normalizeText(text);
 
-    if (currentRole === "restaurant" && wantsMetricsAnswer(text)) {
-      const metricAnswer = answerRestaurantMetric(text, restaurantContext);
-      if (metricAnswer) {
-        addMessage(metricAnswer, false);
-        setAiThinking(false);
-        return;
-      }
-    }
-
     if (currentRole === "restaurant" && wantsFormFill(text)) {
       try {
         const fill = await extractFillWithAi(text);
@@ -271,6 +262,15 @@ export function AiPanel({ currentRole = null, currentTab = null, onNavigate, res
           setAiThinking(false);
           return;
         }
+      }
+    }
+
+    if (currentRole === "restaurant" && wantsMetricsAnswer(text)) {
+      const metricAnswer = answerRestaurantMetric(text, restaurantContext);
+      if (metricAnswer) {
+        addMessage(metricAnswer, false);
+        setAiThinking(false);
+        return;
       }
     }
 

@@ -70,13 +70,17 @@ export default function App() {
     showToast("Navegando a " + intent.tab);
 
     if (intent.target) {
-      setTimeout(() => {
+      const focusTarget = (attempt = 0) => {
         const element = document.getElementById(intent.target);
-        if (!element) return;
+        if (!element) {
+          if (attempt < 5) setTimeout(() => focusTarget(attempt + 1), 120);
+          return;
+        }
         element.scrollIntoView({ behavior: "smooth", block: "center" });
         element.classList.add("guided-highlight");
         setTimeout(() => element.classList.remove("guided-highlight"), 1800);
-      }, 120);
+      };
+      setTimeout(() => focusTarget(), 120);
     }
   }, [currentRole, showToast]);
 
