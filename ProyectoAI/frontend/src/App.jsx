@@ -227,7 +227,14 @@ export default function App() {
         </>
       )}
 
-      {currentRole === "restaurant" && <AiPanel currentRole={currentRole} currentTab={assistantTarget?.tab || null} onNavigate={handleAiNavigate} />}
+      {currentRole === "restaurant" && (
+        <AiPanel
+          currentRole={currentRole}
+          currentTab={assistantTarget?.tab || null}
+          onNavigate={handleAiNavigate}
+          restaurantContext={{ products, orders }}
+        />
+      )}
       <Toast toasts={toasts} />
     </div>
   );

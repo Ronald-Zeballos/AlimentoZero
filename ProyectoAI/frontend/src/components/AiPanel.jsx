@@ -27,6 +27,92 @@ function buildSystem(role, tab) {
   return `Eres Ali, asistente de AlimentoZero. El usuario tiene rol "${role}" y esta en "${tab}". Responde breve, practico y solo con funciones permitidas para ese rol.`;
 }
 
+function money(value) {
+  return "$" + Number(value || 0).toFixed(2);
+}
+
+function buildRestaurantMetrics(context = {}) {
+  const orders = context.orders || [];
+  const products = context.products || [];
+  const completedStatuses = new Set(["confirmed", "preparing", "ready", "picked_up", "in_transit", "delivered"]);
+  const revenueOrders = orders.filter((order) => completedStatuses.has(String(order.status || "").toLowerCase()));
+  const revenue = revenueOrders.reduce((total, order) => total + Number(order.total || 0), 0);
+  const pendingOrders = orders.filter((order) => !["delivered", "cancelled"].includes(String(order.status || "").toLowerCase())).length;
+  const activeProducts = products.filter((product) => product.status === "PUBLISHED").length;
+  const stock = products.reduce((total, product) => total + Number(product.stock || 0), 0);
+  const donationProducts = products.filter((product) => product.isDonation);
+  const donationValue = donationProducts.reduce((total, product) => total + Number(product.donationValue || product.originalPrice || 0) * Number(product.stock || 0), 0);
+  const soldByProduct = new Map();
+
+  orders.forEach((order) => {
+    (order.items || []).forEach((item) => {
+      const key = item.name || "Producto";
+      const current = soldByProduct.get(key) || { name: key, qty: 0, total: 0 };
+      current.qty += Number(item.qty || 0);
+      current.total += Number(item.price || 0) * Number(item.qty || 0);
+      soldByProduct.set(key, current);
+    });
+  });
+
+  const topProduct = [...soldByProduct.values()].sort((a, b) => b.qty - a.qty)[0] || null;
+  return {
+    revenue,
+    orderCount: orders.length,
+    revenueOrderCount: revenueOrders.length,
+    pendingOrders,
+    activeProducts,
+    stock,
+    donationCount: donationProducts.length,
+    donationValue,
+    topProduct
+  };
+}
+
+function wantsMetricsAnswer(text) {
+  const lower = normalizeText(text);
+  return /(cuanto|cuanta|total|vendi|vendido|ventas|ingreso|factur|pedido|stock|inventario|donacion|producto mas|mas vendido|pendiente|resumen|metric|impacto)/.test(lower);
+}
+
+function answerRestaurantMetric(text, context) {
+  const lower = normalizeText(text);
+  const metrics = buildRestaurantMetrics(context);
+
+  if (/(vendi|vendido|ventas|ingreso|factur|total)/.test(lower)) {
+    return `Vendiste ${money(metrics.revenue)} en ${metrics.revenueOrderCount} pedidos registrados.`;
+  }
+  if (/(cuantos pedidos|pedido|pendiente)/.test(lower)) {
+    return `Tienes ${metrics.orderCount} pedidos en total y ${metrics.pendingOrders} pendientes o activos.`;
+  }
+  if (/(stock|inventario|producto)/.test(lower) && /(mas vendido|top|mejor)/.test(lower)) {
+    if (!metrics.topProduct) return "Todavia no hay ventas suficientes para calcular el producto mas vendido.";
+    return `Tu producto mas vendido es ${metrics.topProduct.name}: ${metrics.topProduct.qty} unidades, por ${money(metrics.topProduct.total)}.`;
+  }
+  if (/(stock|inventario)/.test(lower)) {
+    return `Tienes ${metrics.stock} unidades disponibles en ${metrics.activeProducts} productos publicados.`;
+  }
+  if (/(donacion|donaciones|impacto)/.test(lower)) {
+    return `Tienes ${metrics.donationCount} productos en donacion, con valor estimado de ${money(metrics.donationValue)} segun el stock actual.`;
+  }
+  if (/(resumen|metric)/.test(lower)) {
+    return `Resumen: ${money(metrics.revenue)} vendidos, ${metrics.orderCount} pedidos, ${metrics.pendingOrders} activos, ${metrics.stock} unidades en stock y ${metrics.donationCount} donaciones publicadas.`;
+  }
+
+  return null;
+}
+
+function metricsContextText(context = {}) {
+  const metrics = buildRestaurantMetrics(context);
+  return `Metricas actuales restaurante:
+- Ventas: ${money(metrics.revenue)}
+- Pedidos totales: ${metrics.orderCount}
+- Pedidos activos: ${metrics.pendingOrders}
+- Productos publicados: ${metrics.activeProducts}
+- Stock disponible: ${metrics.stock}
+- Donaciones publicadas: ${metrics.donationCount}
+- Valor donaciones: ${money(metrics.donationValue)}
+- Producto mas vendido: ${metrics.topProduct ? `${metrics.topProduct.name} (${metrics.topProduct.qty} unidades, ${money(metrics.topProduct.total)})` : "sin datos"}`;
+}
+
 function wantsFormFill(text) {
   const lower = normalizeText(text);
   const action = /(rellen|complet|llen|carg|public|crea|agreg|actualiz|cambi|edit)/.test(lower);
@@ -111,7 +197,7 @@ Texto usuario: ${text}`;
   return normalizeFillPayload(parsed, text) || localFillExtraction(text);
 }
 
-export function AiPanel({ currentRole = null, currentTab = null, onNavigate }) {
+export function AiPanel({ currentRole = null, currentTab = null, onNavigate, restaurantContext = null }) {
   const [aiOpen, setAiOpen] = useState(false);
   const [aiMessages, setAiMessages] = useState(() => [{ text: INITIAL_GREETING, user: false }]);
   const [aiInput, setAiInput] = useState("");
@@ -145,6 +231,15 @@ export function AiPanel({ currentRole = null, currentTab = null, onNavigate }) {
     setAiThinking(true);
 
     const lower = normalizeText(text);
+
+    if (currentRole === "restaurant" && wantsMetricsAnswer(text)) {
+      const metricAnswer = answerRestaurantMetric(text, restaurantContext);
+      if (metricAnswer) {
+        addMessage(metricAnswer, false);
+        setAiThinking(false);
+        return;
+      }
+    }
 
     if (currentRole === "restaurant" && wantsFormFill(text)) {
       try {
@@ -197,7 +292,8 @@ export function AiPanel({ currentRole = null, currentTab = null, onNavigate }) {
     }
 
     try {
-      const prompt = `${buildSystem(currentRole || "visitante", currentTab || "inicio")}\n\nPregunta: ${text}`;
+      const context = currentRole === "restaurant" && restaurantContext ? `\n\n${metricsContextText(restaurantContext)}` : "";
+      const prompt = `${buildSystem(currentRole || "visitante", currentTab || "inicio")}${context}\n\nPregunta: ${text}`;
       const response = await aiApi.ragQa(prompt, "alimentozero-web");
       addMessage(response?.answer || response?.content || "No recibi una respuesta clara de la IA.", false);
     } catch {
@@ -211,7 +307,7 @@ export function AiPanel({ currentRole = null, currentTab = null, onNavigate }) {
     } finally {
       setAiThinking(false);
     }
-  }, [aiInput, aiThinking, currentRole, currentTab, fallbackKnowledge, addMessage, sendNavigation]);
+  }, [aiInput, aiThinking, currentRole, currentTab, restaurantContext, fallbackKnowledge, addMessage, sendNavigation]);
 
   const fabVisible = currentRole && currentRole !== "landing";
 
