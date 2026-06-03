@@ -102,10 +102,10 @@ Write-Host ""
 
 Import-EnvFile (Join-Path $rootDir ".env")
 Import-EnvFile (Join-Path $rootDir "ai-service\.env")
-$aiProfile = if ($env:AI_PROFILE) { $env:AI_PROFILE } elseif ($env:OPENAI_API_KEY) { "openai" } else { "demo" }
+$aiProfile = if ($env:OPENAI_API_KEY -and (-not $env:AI_PROFILE -or $env:AI_PROFILE -eq "demo")) { "openai" } elseif ($env:AI_PROFILE) { $env:AI_PROFILE } else { "demo" }
 Write-Host "[AI] Profile: $aiProfile" -ForegroundColor Cyan
-if ($env:OPENAI_API_KEY -and $aiProfile -eq "demo") {
-    Write-Host "[AI] OPENAI_API_KEY is present but AI_PROFILE=demo. Set AI_PROFILE=openai to use OpenAI." -ForegroundColor Yellow
+if ($env:OPENAI_API_KEY -and $env:AI_PROFILE -eq "demo") {
+    Write-Host "[AI] OPENAI_API_KEY is present; overriding AI_PROFILE=demo and using openai." -ForegroundColor Yellow
 }
 
 if (-not $NoBuild) {

@@ -27,6 +27,90 @@ function buildSystem(role, tab) {
   return `Eres Ali, asistente de AlimentoZero. El usuario tiene rol "${role}" y esta en "${tab}". Responde breve, practico y solo con funciones permitidas para ese rol.`;
 }
 
+function wantsFormFill(text) {
+  const lower = normalizeText(text);
+  const action = /(rellen|complet|llen|carg|public|crea|agreg|actualiz|cambi|edit)/.test(lower);
+  const target = /(nit|razon social|telefono|direccion|producto|oferta|precio|stock|descripcion|categoria|donacion|rescate)/.test(lower);
+  return action && target;
+}
+
+function extractJsonObject(text) {
+  if (!text) return null;
+  const cleaned = String(text).replace(/```json|```/g, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  try {
+    return JSON.parse(cleaned.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+}
+
+function numberFrom(text) {
+  if (!text) return "";
+  const match = String(text).match(/\d+(?:[.,]\d+)?/);
+  return match ? match[0].replace(",", ".") : "";
+}
+
+function localFillExtraction(text) {
+  const lower = normalizeText(text);
+  const fields = {};
+  const profileFields = {};
+
+  const nit = text.match(/\bnit\s*(?:es|:|=)?\s*([0-9-]{5,})/i);
+  const phone = text.match(/(?:telefono|tel|celular)\s*(?:es|:|=)?\s*([+0-9\s-]{7,})/i);
+  const legalName = text.match(/razon social\s*(?:es|:|=)?\s*([^,.]+)/i);
+  const address = text.match(/direccion\s*(?:es|:|=)?\s*([^,.]+)/i);
+
+  if (nit) profileFields.nit = nit[1].trim();
+  if (phone) profileFields.phone = phone[1].trim();
+  if (legalName) profileFields.legalName = legalName[1].trim();
+  if (address) profileFields.address = address[1].trim();
+
+  const productName = text.match(/(?:producto|plato|oferta|publica|publicar|carga|crear)\s+(?:llamado|llamada|de)?\s*([^,.;]+)/i);
+  const originalPrice = text.match(/(?:precio original|original)\s*(?:de|es|:|=)?\s*([0-9]+(?:[.,][0-9]+)?)/i);
+  const rescuePrice = text.match(/(?:precio rescate|rescate|precio)\s*(?:de|es|:|=)?\s*([0-9]+(?:[.,][0-9]+)?)/i);
+  const stock = text.match(/(?:stock|cantidad|unidades|porciones)\s*(?:de|es|:|=)?\s*([0-9]+)/i);
+
+  if (productName && !lower.includes("nit")) fields.name = productName[1].trim();
+  if (originalPrice) fields.originalPrice = numberFrom(originalPrice[1]);
+  if (rescuePrice) fields.rescuePrice = numberFrom(rescuePrice[1]);
+  if (stock) fields.stock = stock[1];
+  if (lower.includes("pan")) fields.category = "Panaderia";
+  if (lower.includes("bebida")) fields.category = "Bebidas";
+  if (lower.includes("fruta") || lower.includes("verdura")) fields.category = "Frutas y verduras";
+  if (lower.includes("donacion") || lower.includes("donar")) fields.listingType = "DONATION";
+  if (lower.includes("por vencer")) fields.foodCondition = "EXPIRING_SOON";
+
+  if (Object.keys(profileFields).length) return { form: "profile", fields: profileFields };
+  if (Object.keys(fields).length) return { form: "product", fields };
+  return null;
+}
+
+function normalizeFillPayload(payload, text) {
+  const candidate = payload?.fill || payload;
+  if (candidate?.form && candidate?.fields) return candidate;
+  return localFillExtraction(text);
+}
+
+async function extractFillWithAi(text) {
+  const prompt = `Extrae datos para formularios de restaurante de AlimentoZero.
+Devuelve SOLO JSON valido con esta forma:
+{"form":"product|profile","fields":{...},"reply":"mensaje breve"}
+Campos product permitidos: name, category, originalPrice, rescuePrice, stock, description, foodCondition, listingType.
+category debe ser una de: Comida preparada, Panaderia, Bebidas, Frutas y verduras.
+foodCondition debe ser GOOD, EXPIRING_SOON o DAMAGED.
+listingType debe ser DISCOUNTED_SALE o DONATION.
+Campos profile permitidos: legalName, nit, phone, address.
+Texto usuario: ${text}`;
+
+  const response = await aiApi.ragQa(prompt, "restaurant-form-fill");
+  const raw = response?.answer || response?.content || "";
+  const parsed = extractJsonObject(raw);
+  return normalizeFillPayload(parsed, text) || localFillExtraction(text);
+}
+
 export function AiPanel({ currentRole = null, currentTab = null, onNavigate }) {
   const [aiOpen, setAiOpen] = useState(false);
   const [aiMessages, setAiMessages] = useState(() => [{ text: INITIAL_GREETING, user: false }]);
@@ -61,6 +145,40 @@ export function AiPanel({ currentRole = null, currentTab = null, onNavigate }) {
     setAiThinking(true);
 
     const lower = normalizeText(text);
+
+    if (currentRole === "restaurant" && wantsFormFill(text)) {
+      try {
+        const fill = await extractFillWithAi(text);
+        if (fill?.form && fill?.fields && Object.keys(fill.fields).length > 0) {
+          const intent = {
+            role: "restaurant",
+            tab: fill.form === "profile" ? "profile" : "publish",
+            target: fill.form === "profile" ? "restaurantProfile" : "restaurantProductFormCard",
+            fill,
+            message: fill.form === "profile" ? "Complete los datos fiscales con tu pedido." : "Complete la oferta con tu pedido."
+          };
+          sendNavigation(intent);
+          addMessage(fill.reply || "Listo, complete los campos que pude identificar. Revisa el formulario antes de guardar.", false);
+          setAiThinking(false);
+          return;
+        }
+      } catch {
+        const fill = localFillExtraction(text);
+        if (fill) {
+          sendNavigation({
+            role: "restaurant",
+            tab: fill.form === "profile" ? "profile" : "publish",
+            target: fill.form === "profile" ? "restaurantProfile" : "restaurantProductFormCard",
+            fill,
+            message: "Complete el formulario con ayuda local."
+          });
+          addMessage("No pude usar la IA, pero complete los campos que pude detectar localmente.", false);
+          setAiThinking(false);
+          return;
+        }
+      }
+    }
+
     const matched = GUIDE_INTENTS.find((entry) =>
       (!entry.role || entry.role === currentRole) && entry.keywords.some((kw) => lower.includes(normalizeText(kw)))
     );

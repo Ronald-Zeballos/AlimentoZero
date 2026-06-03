@@ -5,6 +5,22 @@ import { useMap } from "../hooks/useMap";
 
 export default function RestaurantDashboard({ products = [], orders = [], onUpdateOrderStatus, currentRole, assistantTarget = null }) {
   const [tab, setTab] = useState("summary");
+  const [productForm, setProductForm] = useState({
+    name: "",
+    category: "Comida preparada",
+    originalPrice: "",
+    rescuePrice: "",
+    stock: "1",
+    description: "",
+    foodCondition: "GOOD",
+    listingType: "DISCOUNTED_SALE"
+  });
+  const [profileForm, setProfileForm] = useState({
+    legalName: "Restaurante El Sabor S.R.L.",
+    nit: "123456789012",
+    phone: "+591 2 244 5678",
+    address: "Plaza 24 de Septiembre"
+  });
   useMap("restaurantMap", tab === "location", DEFAULT_MAP_CENTER);
 
   const activeOrders = orders.filter((o) => !["delivered", "cancelled"].includes(o.status?.toLowerCase()));
@@ -25,7 +41,21 @@ export default function RestaurantDashboard({ products = [], orders = [], onUpda
     if (assistantTarget?.tab && tabs.some((item) => item.key === assistantTarget.tab)) {
       setTab(assistantTarget.tab);
     }
+    if (assistantTarget?.fill?.form === "product") {
+      setProductForm((prev) => ({ ...prev, ...assistantTarget.fill.fields }));
+    }
+    if (assistantTarget?.fill?.form === "profile") {
+      setProfileForm((prev) => ({ ...prev, ...assistantTarget.fill.fields }));
+    }
   }, [assistantTarget]);
+
+  const updateProductField = (field, value) => {
+    setProductForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateProfileField = (field, value) => {
+    setProfileForm((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <div className="page active" id="restaurantDashboard">
@@ -68,37 +98,37 @@ export default function RestaurantDashboard({ products = [], orders = [], onUpda
                   <div className="row g-3">
                     <div className="col-md-6">
                       <label className="form-label small fw-bold">Nombre del producto</label>
-                      <input className="form-control" placeholder="Ej: Pizza Margherita" />
+                      <input className="form-control" placeholder="Ej: Pizza Margherita" value={productForm.name} onChange={(e) => updateProductField("name", e.target.value)} />
                     </div>
                     <div className="col-md-6">
                       <label className="form-label small fw-bold">Categoria</label>
-                      <select className="form-select"><option>Comida preparada</option><option>Panaderia</option><option>Bebidas</option><option>Frutas y verduras</option></select>
+                      <select className="form-select" value={productForm.category} onChange={(e) => updateProductField("category", e.target.value)}><option>Comida preparada</option><option>Panaderia</option><option>Bebidas</option><option>Frutas y verduras</option></select>
                     </div>
                     <div className="col-md-4">
                       <label className="form-label small fw-bold">Precio original</label>
-                      <input className="form-control" placeholder="$0.00" />
+                      <input className="form-control" placeholder="$0.00" value={productForm.originalPrice} onChange={(e) => updateProductField("originalPrice", e.target.value)} />
                     </div>
                     <div className="col-md-4">
                       <label className="form-label small fw-bold">Precio rescate</label>
-                      <input className="form-control" placeholder="$0.00" />
+                      <input className="form-control" placeholder="$0.00" value={productForm.rescuePrice} onChange={(e) => updateProductField("rescuePrice", e.target.value)} />
                     </div>
                     <div className="col-md-4">
                       <label className="form-label small fw-bold">Stock</label>
-                      <input className="form-control" type="number" placeholder="1" min="1" />
+                      <input className="form-control" type="number" placeholder="1" min="1" value={productForm.stock} onChange={(e) => updateProductField("stock", e.target.value)} />
                     </div>
                     <div className="col-12">
                       <label className="form-label small fw-bold">Descripcion</label>
-                      <textarea className="form-control" rows="2" placeholder="Describe el producto..."></textarea>
+                      <textarea className="form-control" rows="2" placeholder="Describe el producto..." value={productForm.description} onChange={(e) => updateProductField("description", e.target.value)}></textarea>
                     </div>
                     <div className="col-md-6">
                       <label className="form-label small fw-bold">Condicion del alimento</label>
-                      <select className="form-select"><option value="GOOD">Buen estado</option><option value="EXPIRING_SOON">Por vencer</option><option value="DAMAGED">Danado</option></select>
+                      <select className="form-select" value={productForm.foodCondition} onChange={(e) => updateProductField("foodCondition", e.target.value)}><option value="GOOD">Buen estado</option><option value="EXPIRING_SOON">Por vencer</option><option value="DAMAGED">Danado</option></select>
                     </div>
                     <div className="col-md-6">
                       <label className="form-label small fw-bold">Tipo de oferta</label>
                       <div className="d-flex gap-3 mt-2">
-                        <div className="form-check"><input className="form-check-input" type="radio" name="listingType" id="typeSale" /><label className="form-check-label" htmlFor="typeSale">Venta con descuento</label></div>
-                        <div className="form-check"><input className="form-check-input" type="radio" name="listingType" id="typeDonation" /><label className="form-check-label" htmlFor="typeDonation">Donacion</label></div>
+                        <div className="form-check"><input className="form-check-input" type="radio" name="listingType" id="typeSale" checked={productForm.listingType !== "DONATION"} onChange={() => updateProductField("listingType", "DISCOUNTED_SALE")} /><label className="form-check-label" htmlFor="typeSale">Venta con descuento</label></div>
+                        <div className="form-check"><input className="form-check-input" type="radio" name="listingType" id="typeDonation" checked={productForm.listingType === "DONATION"} onChange={() => updateProductField("listingType", "DONATION")} /><label className="form-check-label" htmlFor="typeDonation">Donacion</label></div>
                       </div>
                     </div>
                     <div className="col-12">
@@ -223,10 +253,10 @@ export default function RestaurantDashboard({ products = [], orders = [], onUpda
                 <h5 className="fw-bold mb-3">Datos fiscales</h5>
                 <form onSubmit={(e) => { e.preventDefault(); alert("Datos guardados (simulado)"); }}>
                   <div className="row g-3">
-                    <div className="col-md-6"><label className="form-label small fw-bold">Razon Social</label><input className="form-control" value="Restaurante El Sabor S.R.L." /></div>
-                    <div className="col-md-6"><label className="form-label small fw-bold">NIT</label><input className="form-control" value="123456789012" /></div>
-                    <div className="col-md-6"><label className="form-label small fw-bold">Telefono</label><input className="form-control" value="+591 2 244 5678" /></div>
-                    <div className="col-md-6"><label className="form-label small fw-bold">Direccion</label><input className="form-control" value="Plaza 24 de Septiembre" /></div>
+                    <div className="col-md-6"><label className="form-label small fw-bold">Razon Social</label><input className="form-control" value={profileForm.legalName} onChange={(e) => updateProfileField("legalName", e.target.value)} /></div>
+                    <div className="col-md-6"><label className="form-label small fw-bold">NIT</label><input className="form-control" value={profileForm.nit} onChange={(e) => updateProfileField("nit", e.target.value)} /></div>
+                    <div className="col-md-6"><label className="form-label small fw-bold">Telefono</label><input className="form-control" value={profileForm.phone} onChange={(e) => updateProfileField("phone", e.target.value)} /></div>
+                    <div className="col-md-6"><label className="form-label small fw-bold">Direccion</label><input className="form-control" value={profileForm.address} onChange={(e) => updateProfileField("address", e.target.value)} /></div>
                     <div className="col-12"><button className="btn btn-success">Guardar cambios</button></div>
                   </div>
                 </form>
