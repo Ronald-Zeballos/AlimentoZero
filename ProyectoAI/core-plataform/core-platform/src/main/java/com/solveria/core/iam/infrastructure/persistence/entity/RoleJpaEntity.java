@@ -19,6 +19,12 @@ public class RoleJpaEntity extends BaseEntity {
 
     @Column private String description;
 
+    @Column(name = "display_name")
+    private String displayName;
+
+    @Column(name = "capabilities", length = 2000)
+    private String capabilitiesJson;
+
     @ManyToMany(mappedBy = "roles")
     private Set<UserJpaEntity> users = new HashSet<>();
 
@@ -48,6 +54,22 @@ public class RoleJpaEntity extends BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getCapabilitiesJson() {
+        return capabilitiesJson;
+    }
+
+    public void setCapabilitiesJson(String capabilitiesJson) {
+        this.capabilitiesJson = capabilitiesJson;
     }
 
     public Set<UserJpaEntity> getUsers() {

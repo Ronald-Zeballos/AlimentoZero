@@ -5,9 +5,7 @@ import com.solveria.ai.application.port.out.LlmPort;
 import com.solveria.ai.domain.model.Completion;
 import com.solveria.ai.domain.model.Prompt;
 
-/**
- * Use case: complete prompt via LLM port.
- */
+/** Use case: complete prompt via LLM port. */
 public class CompletePromptService implements CompletePromptUseCase {
 
     private final LlmPort llmPort;

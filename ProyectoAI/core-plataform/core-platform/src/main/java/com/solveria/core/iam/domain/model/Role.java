@@ -14,6 +14,8 @@ public class Role {
     private final Long id;
     private String name;
     private String description;
+    private String displayName;
+    private Set<String> capabilities = new HashSet<>();
     private Set<Long> permissionIds = new HashSet<>();
     private String tenantId;
     private Long version;
@@ -30,6 +32,14 @@ public class Role {
         this.id = null;
         this.name = name;
         this.description = description;
+    }
+
+    public Role(String name, String description, String displayName, Set<String> capabilities) {
+        this.id = null;
+        this.name = name;
+        this.description = description;
+        this.displayName = displayName;
+        this.capabilities = capabilities != null ? new HashSet<>(capabilities) : new HashSet<>();
     }
 
     public Role(
@@ -73,6 +83,25 @@ public class Role {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public Set<String> getCapabilities() {
+        return new HashSet<>(capabilities);
+    }
+
+    public void assignCapabilities(Set<String> capabilities) {
+        this.capabilities.clear();
+        if (capabilities != null) {
+            this.capabilities.addAll(capabilities);
+        }
     }
 
     public Set<Long> getPermissionIds() {

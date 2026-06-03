@@ -1,6 +1,7 @@
 package com.solveria.iamservice.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 
 @Schema(description = "Role representation for IAM and marketplace role management")
 public record RoleResponse(
@@ -10,4 +11,6 @@ public record RoleResponse(
                         description = "Role description",
                         example = "Can publish listings, manage stock and view impact metrics")
                 String description,
+        @Schema(description = "Display label for the role", example = "Negocio") String displayName,
+        @Schema(description = "Main capabilities") List<String> capabilities,
         @Schema(description = "Tenant identifier", example = "demo-tenant") String tenantId) {}

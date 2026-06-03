@@ -25,26 +25,43 @@ public class MarketplaceRoleCatalogOrchestrator {
 
     public List<MarketplaceRoleTemplateResponse> listTemplates() {
         return getMarketplaceRoleCatalogUseCase.execute().stream()
-                .map(template -> new MarketplaceRoleTemplateResponse(
-                        template.code(),
-                        template.displayName(),
-                        template.description(),
-                        template.capabilities()))
+                .map(
+                        template ->
+                                new MarketplaceRoleTemplateResponse(
+                                        template.code(),
+                                        template.displayName(),
+                                        template.description(),
+                                        template.capabilities()))
                 .toList();
     }
 
     public List<RoleResponse> listTenantRoles(String tenantId) {
         return listRolesUseCase.execute(tenantId).stream()
-                .map(role -> new RoleResponse(
-                        role.getId(), role.getName(), role.getDescription(), role.getTenantId()))
+                .map(
+                        role ->
+                                new RoleResponse(
+                                        role.getId(),
+                                        role.getName(),
+                                        role.getDescription(),
+                                        role.getDisplayName(),
+                                        List.copyOf(role.getCapabilities()),
+                                        role.getTenantId()))
                 .toList();
     }
 
     public BootstrapMarketplaceRolesResponse bootstrapTenant(String tenantId) {
-        List<RoleResponse> roles = ensureMarketplaceRolesUseCase.execute(tenantId).stream()
-                .map(role -> new RoleResponse(
-                        role.getId(), role.getName(), role.getDescription(), role.getTenantId()))
-                .toList();
+        List<RoleResponse> roles =
+                ensureMarketplaceRolesUseCase.execute(tenantId).stream()
+                        .map(
+                                role ->
+                                        new RoleResponse(
+                                                role.getId(),
+                                                role.getName(),
+                                                role.getDescription(),
+                                                role.getDisplayName(),
+                                                List.copyOf(role.getCapabilities()),
+                                                role.getTenantId()))
+                        .toList();
         return new BootstrapMarketplaceRolesResponse(tenantId, roles.size(), roles);
     }
 }

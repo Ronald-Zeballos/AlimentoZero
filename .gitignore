@@ -2,8 +2,21 @@
 **/.runtime/
 node_modules/
 **/node_modules/
+**/.vite/
 .env
 **/.env
 *.log
 dist/
+**/dist/
 build/
+**/build/
+target/
+**/target/
+
+# Vite serves static files from frontend/public.
+**/frontend/assets/
+
+# Keep frontend public assets versioned.
+!**/frontend/public/assets/
+!**/frontend/public/assets/**
+!**/frontend/public/assistant-fallback.json

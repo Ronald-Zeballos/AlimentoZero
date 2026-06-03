@@ -26,7 +26,9 @@ public class RoleRepositoryAdapter implements RoleRepositoryPort {
         var entity =
                 role.getId() == null
                         ? mapper.toEntity(role)
-                        : roleJpaRepository.findById(role.getId()).orElseGet(() -> mapper.toEntity(role));
+                        : roleJpaRepository
+                                .findById(role.getId())
+                                .orElseGet(() -> mapper.toEntity(role));
         mapper.updateEntity(role, entity);
         var saved = roleJpaRepository.save(entity);
         return mapper.toDomain(saved);
@@ -53,6 +55,10 @@ public class RoleRepositoryAdapter implements RoleRepositoryPort {
 
     @Override
     public Optional<Role> findByNameIgnoreCaseAndTenantId(String name, String tenantId) {
-        return roleJpaRepository.findByNameIgnoreCaseAndTenantId(name, tenantId).map(mapper::toDomain);
+        return roleJpaRepository
+                .findAllByNameIgnoreCaseAndTenantIdOrderByIdAsc(name, tenantId)
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
     }
 }

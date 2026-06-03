@@ -8,9 +8,7 @@ import com.solveria.ai.domain.model.Prompt;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
-/**
- * LlmPort adapter that delegates to LlmChatPort (e.g. Spring AI ChatClient or stub).
- */
+/** LlmPort adapter that delegates to LlmChatPort (e.g. Spring AI ChatClient or stub). */
 @Component
 @ConditionalOnBean(LlmChatPort.class)
 public class LlmPortFromChatAdapter implements LlmPort {

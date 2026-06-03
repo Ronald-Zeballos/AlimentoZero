@@ -1,5 +1,6 @@
 package com.solveria.iamservice.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solveria.core.iam.application.port.PermissionRepositoryPort;
 import com.solveria.core.iam.application.port.RoleRepositoryPort;
 import com.solveria.core.iam.application.port.UserRepositoryPort;
@@ -31,8 +32,8 @@ public class IamCoreImportsConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public RoleJpaMapper roleJpaMapper() {
-        return new RoleJpaMapper();
+    public RoleJpaMapper roleJpaMapper(ObjectMapper objectMapper) {
+        return new RoleJpaMapper(objectMapper);
     }
 
     @Bean
@@ -57,7 +58,8 @@ public class IamCoreImportsConfig {
     @Bean
     @ConditionalOnMissingBean(PermissionRepositoryPort.class)
     public PermissionRepositoryPort permissionRepositoryPort(
-            PermissionJpaRepository permissionJpaRepository, PermissionJpaMapper permissionJpaMapper) {
+            PermissionJpaRepository permissionJpaRepository,
+            PermissionJpaMapper permissionJpaMapper) {
         return new PermissionRepositoryAdapter(permissionJpaRepository, permissionJpaMapper);
     }
 

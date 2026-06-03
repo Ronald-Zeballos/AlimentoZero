@@ -2,9 +2,7 @@ package com.solveria.ai.domain.model;
 
 import java.util.Map;
 
-/**
- * Domain model: user prompt for AI completion.
- */
+/** Domain model: user prompt for AI completion. */
 public record Prompt(String text, Map<String, Object> metadata) {
 
     public Prompt {

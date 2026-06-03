@@ -27,17 +27,18 @@ class MarketplaceProfileControllerTest {
                 new MarketplaceProfileCatalogOrchestrator(null, null, null) {
                     @Override
                     public List<MarketplaceProfileTemplateResponse> listTemplates() {
-                        return List.of(new MarketplaceProfileTemplateResponse(
-                                "MERCHANT_BAKERY",
-                                "Panaderia aliada",
-                                "Publica excedentes y protege margen.",
-                                "panaderia.aliada",
-                                "MERCHANT",
-                                "MERCHANT",
-                                "merchant-la-paz",
-                                "/merchant/listings",
-                                "MERCHANT_RECOVERY",
-                                List.of("Publicar excedentes", "Gestionar stock")));
+                        return List.of(
+                                new MarketplaceProfileTemplateResponse(
+                                        "MERCHANT_BAKERY",
+                                        "Panaderia aliada",
+                                        "Publica excedentes y protege margen.",
+                                        "panaderia.aliada",
+                                        "MERCHANT",
+                                        "MERCHANT",
+                                        "merchant-la-paz",
+                                        "/merchant/listings",
+                                        "MERCHANT_RECOVERY",
+                                        List.of("Publicar excedentes", "Gestionar stock")));
                     }
 
                     @Override
@@ -74,14 +75,19 @@ class MarketplaceProfileControllerTest {
                     }
 
                     @Override
-                    public List<MarketplaceProfileResponse> listTenantProfiles(String tenantId, String actorType) {
+                    public List<MarketplaceProfileResponse> listTenantProfiles(
+                            String tenantId, String actorType) {
                         return listTenantProfiles(tenantId).stream()
-                                .filter(profile -> actorType == null || profile.actorType().equals(actorType))
+                                .filter(
+                                        profile ->
+                                                actorType == null
+                                                        || profile.actorType().equals(actorType))
                                 .toList();
                     }
 
                     @Override
-                    public MarketplaceProfileResponse getTenantProfile(String tenantId, String profileKey) {
+                    public MarketplaceProfileResponse getTenantProfile(
+                            String tenantId, String profileKey) {
                         return listTenantProfiles(tenantId).stream()
                                 .filter(profile -> profile.profileKey().equals(profileKey))
                                 .findFirst()
@@ -91,16 +97,16 @@ class MarketplaceProfileControllerTest {
                     @Override
                     public BootstrapMarketplaceProfilesResponse bootstrapTenant(String tenantId) {
                         return new BootstrapMarketplaceProfilesResponse(
-                                tenantId,
-                                2,
-                                listTenantProfiles(tenantId));
+                                tenantId, 2, listTenantProfiles(tenantId));
                     }
                 };
 
-        mvc = MockMvcBuilders.standaloneSetup(
-                        new MarketplaceProfileController(marketplaceProfileCatalogOrchestrator))
-                .setMessageConverters(new MappingJackson2HttpMessageConverter())
-                .build();
+        mvc =
+                MockMvcBuilders.standaloneSetup(
+                                new MarketplaceProfileController(
+                                        marketplaceProfileCatalogOrchestrator))
+                        .setMessageConverters(new MappingJackson2HttpMessageConverter())
+                        .build();
     }
 
     @Test
@@ -114,16 +120,19 @@ class MarketplaceProfileControllerTest {
 
     @Test
     void listProfiles_canFilterByActorType() throws Exception {
-        mvc.perform(get("/api/v1/iam/profiles")
-                        .header("X-Tenant-Id", "demo-tenant")
-                        .param("actorType", "MERCHANT"))
+        mvc.perform(
+                        get("/api/v1/iam/profiles")
+                                .header("X-Tenant-Id", "demo-tenant")
+                                .param("actorType", "MERCHANT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].profileKey").value("MERCHANT_BAKERY"));
     }
 
     @Test
     void getProfile_returnsSingleMarketplaceProfile() throws Exception {
-        mvc.perform(get("/api/v1/iam/profiles/MERCHANT_BAKERY").header("X-Tenant-Id", "demo-tenant"))
+        mvc.perform(
+                        get("/api/v1/iam/profiles/MERCHANT_BAKERY")
+                                .header("X-Tenant-Id", "demo-tenant"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.displayName").value("Panaderia aliada"))
                 .andExpect(jsonPath("$.actorId").value("merchant-la-paz"));
@@ -139,8 +148,9 @@ class MarketplaceProfileControllerTest {
 
     @Test
     void bootstrapMarketplaceProfiles_returnsEnsuredProfiles() throws Exception {
-        mvc.perform(post("/api/v1/iam/profiles/bootstrap/marketplace")
-                        .header("X-Tenant-Id", "demo-tenant"))
+        mvc.perform(
+                        post("/api/v1/iam/profiles/bootstrap/marketplace")
+                                .header("X-Tenant-Id", "demo-tenant"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tenantId").value("demo-tenant"))
                 .andExpect(jsonPath("$.ensuredProfiles").value(2))

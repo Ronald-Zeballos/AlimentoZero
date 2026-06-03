@@ -1,0 +1,100 @@
+{
+  "name": "code-agent-extension",
+  "displayName": "Code Agent",
+  "description": "Agente de codigo automatico: comentarios, sugerencias, verificacion de errores",
+  "version": "1.0.0",
+  "publisher": "solveria",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Formatters",
+    "Linters"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codeAgent.generateComments",
+        "title": "Code Agent: Generar comentarios automaticos"
+      },
+      {
+        "command": "codeAgent.suggestImprovements",
+        "title": "Code Agent: Sugerir mejoras en el codigo"
+      },
+      {
+        "command": "codeAgent.checkErrors",
+        "title": "Code Agent: Verificar errores comunes"
+      },
+      {
+        "command": "codeAgent.refactorToLoggingLibrary",
+        "title": "Code Agent: Refactorizar console.log a logger"
+      },
+      {
+        "command": "codeAgent.addJSDoc",
+        "title": "Code Agent: Agregar JSDoc a la funcion"
+      },
+      {
+        "command": "codeAgent.wrapTryCatch",
+        "title": "Code Agent: Envolver en try-catch"
+      },
+      {
+        "command": "codeAgent.extractMagicNumbers",
+        "title": "Code Agent: Extraer numeros magicos a constantes"
+      },
+      {
+        "command": "codeAgent.removeDeadCode",
+        "title": "Code Agent: Marcar codigo muerto detectado"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "codeAgent.generateComments",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c"
+      },
+      {
+        "command": "codeAgent.suggestImprovements",
+        "key": "ctrl+alt+i",
+        "mac": "cmd+alt+i"
+      },
+      {
+        "command": "codeAgent.checkErrors",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e"
+      }
+    ],
+    "configuration": {
+      "title": "Code Agent",
+      "properties": {
+        "codeAgent.commentStyle": {
+          "type": "string",
+          "default": "line",
+          "enum": ["line", "block"],
+          "description": "Estilo de comentario: line (//) o block (/* */)"
+        },
+        "codeAgent.enableErrorCheck": {
+          "type": "boolean",
+          "default": true,
+          "description": "Habilitar verificacion de errores al guardar"
+        },
+        "codeAgent.patterns": {
+          "type": "object",
+          "default": {
+            "consoleLog": "Usar un sistema de logging estructurado en lugar de console.log",
+            "varKeyword": "Usar let o const en lugar de var",
+            "magicNumber": "Extraer numero literal a una constante con nombre",
+            "emptyCatch": "No dejar bloques catch vacios",
+            "todoComment": "Revisar TODO pendiente antes de commit",
+            "nestedCallback": "Considerar refactorizar callbacks anidados con async/await",
+            "longFunction": "Funcion muy larga (>30 lineas), considerar dividir",
+            "duplicateCode": "Codigo duplicado detectado, extraer a funcion reutilizable"
+          },
+          "description": "Patrones de mejora detectables"
+        }
+      }
+    }
+  }
+}

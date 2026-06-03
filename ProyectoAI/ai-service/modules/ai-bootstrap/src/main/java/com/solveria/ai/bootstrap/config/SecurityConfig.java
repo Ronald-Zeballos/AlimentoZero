@@ -20,30 +20,43 @@ public class SecurityConfig {
 
     @Bean
     @ConditionalOnProperty(name = "security.jwt.enabled", havingValue = "true")
-    public SecurityFilterChain securedSecurityFilterChain(HttpSecurity http, Environment env) throws Exception {
-        boolean localDocs = Arrays.stream(env.getActiveProfiles())
-                .anyMatch(profile -> profile.equals("dev") || profile.equals("demo"));
+    public SecurityFilterChain securedSecurityFilterChain(HttpSecurity http, Environment env)
+            throws Exception {
+        boolean localDocs =
+                Arrays.stream(env.getActiveProfiles())
+                        .anyMatch(profile -> profile.equals("dev") || profile.equals("demo"));
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(a -> {
-                    a.requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll();
-                    if (localDocs) {
-                        a.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
-                    }
-                    a.anyRequest().authenticated();
-                })
+                .authorizeHttpRequests(
+                        a -> {
+                            a.requestMatchers("/actuator/health/**", "/actuator/info/**")
+                                    .permitAll();
+                            if (localDocs) {
+                                a.requestMatchers(
+                                                "/v3/api-docs/**",
+                                                "/swagger-ui/**",
+                                                "/swagger-ui.html")
+                                        .permitAll();
+                            }
+                            a.anyRequest().authenticated();
+                        })
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .formLogin(AbstractHttpConfigurer::disable)
-                .exceptionHandling(e -> e
-                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
+                .exceptionHandling(
+                        e ->
+                                e.authenticationEntryPoint(
+                                                new BearerTokenAuthenticationEntryPoint())
+                                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
 
         return http.build();
     }
 
     @Bean
-    @ConditionalOnProperty(name = "security.jwt.enabled", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnProperty(
+            name = "security.jwt.enabled",
+            havingValue = "false",
+            matchIfMissing = true)
     public SecurityFilterChain openSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

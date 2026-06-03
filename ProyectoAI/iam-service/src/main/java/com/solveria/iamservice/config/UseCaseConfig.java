@@ -104,9 +104,7 @@ public class UseCaseConfig {
             EnsureMarketplaceRolesUseCase ensureMarketplaceRolesUseCase,
             ListRolesUseCase listRolesUseCase) {
         return new MarketplaceRoleCatalogOrchestrator(
-                getMarketplaceRoleCatalogUseCase,
-                ensureMarketplaceRolesUseCase,
-                listRolesUseCase);
+                getMarketplaceRoleCatalogUseCase, ensureMarketplaceRolesUseCase, listRolesUseCase);
     }
 
     @Bean

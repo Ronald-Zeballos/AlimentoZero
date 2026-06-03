@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface ListFoodListingsUseCase {
 
-    List<FoodListingResult> listAll();
+    List<FoodListingResult> listByTenant(String tenantId);
 }

@@ -28,21 +28,32 @@ public class EnsureMarketplaceProfilesUseCase {
     }
 
     public List<User> execute(String tenantId) {
-        Map<String, Role> rolesByName = ensureMarketplaceRolesUseCase.execute(tenantId).stream()
-                .collect(Collectors.toMap(role -> role.getName().toUpperCase(), Function.identity()));
+        Map<String, Role> rolesByName =
+                ensureMarketplaceRolesUseCase.execute(tenantId).stream()
+                        .collect(
+                                Collectors.toMap(
+                                        role -> role.getName().toUpperCase(), Function.identity()));
 
         List<User> ensuredProfiles = new ArrayList<>();
         for (MarketplaceProfileTemplate template : MarketplaceProfileCatalog.defaultTemplates()) {
-            Role primaryRole = rolesByName.computeIfAbsent(
-                    template.primaryRoleCode().toUpperCase(),
-                    ignored -> roleRepository
-                            .findByNameIgnoreCaseAndTenantId(template.primaryRoleCode(), tenantId)
-                            .orElseThrow(() -> new IllegalStateException(
-                                    "Marketplace role not found for profile: " + template.primaryRoleCode())));
+            Role primaryRole =
+                    rolesByName.computeIfAbsent(
+                            template.primaryRoleCode().toUpperCase(),
+                            ignored ->
+                                    roleRepository
+                                            .findByNameIgnoreCaseAndTenantId(
+                                                    template.primaryRoleCode(), tenantId)
+                                            .orElseThrow(
+                                                    () ->
+                                                            new IllegalStateException(
+                                                                    "Marketplace role not found for profile: "
+                                                                            + template
+                                                                                    .primaryRoleCode())));
 
-            User user = userRepository
-                    .findByUsernameIgnoreCaseAndTenantId(template.username(), tenantId)
-                    .orElseGet(() -> new User(template.username(), template.email(), true));
+            User user =
+                    userRepository
+                            .findByUsernameIgnoreCaseAndTenantId(template.username(), tenantId)
+                            .orElseGet(() -> new User(template.username(), template.email(), true));
 
             user.setTenantId(tenantId);
             user.setEmail(template.email());

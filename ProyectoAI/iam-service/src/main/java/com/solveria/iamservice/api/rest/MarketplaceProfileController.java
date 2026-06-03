@@ -29,14 +29,15 @@ public class MarketplaceProfileController {
     public ResponseEntity<List<MarketplaceProfileResponse>> listProfiles(
             @RequestHeader("X-Tenant-Id") String tenantId,
             @RequestParam(required = false) String actorType) {
-        return ResponseEntity.ok(marketplaceProfileCatalogOrchestrator.listTenantProfiles(tenantId, actorType));
+        return ResponseEntity.ok(
+                marketplaceProfileCatalogOrchestrator.listTenantProfiles(tenantId, actorType));
     }
 
     @GetMapping("/{profileKey}")
     public ResponseEntity<MarketplaceProfileResponse> getProfile(
-            @RequestHeader("X-Tenant-Id") String tenantId,
-            @PathVariable String profileKey) {
-        return ResponseEntity.ok(marketplaceProfileCatalogOrchestrator.getTenantProfile(tenantId, profileKey));
+            @RequestHeader("X-Tenant-Id") String tenantId, @PathVariable String profileKey) {
+        return ResponseEntity.ok(
+                marketplaceProfileCatalogOrchestrator.getTenantProfile(tenantId, profileKey));
     }
 
     @GetMapping("/catalog/marketplace")

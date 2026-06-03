@@ -5,6 +5,7 @@ import com.solveria.core.iam.application.usecase.CreateRoleUseCase;
 import com.solveria.core.iam.domain.model.Role;
 import com.solveria.iamservice.application.dto.CreateRoleRequest;
 import com.solveria.iamservice.application.dto.RoleResponse;
+import java.util.List;
 
 /**
  * Orchestrator for CreateRole use case. Coordinates between API layer and core-platform use case.
@@ -18,12 +19,24 @@ public class CreateRoleOrchestrator {
     }
 
     public RoleResponse execute(String tenantId, CreateRoleRequest request) {
-        Role role = createRoleUseCase.execute(
-                new CreateRoleCommand(tenantId, request.name(), request.description()));
+        Role role =
+                createRoleUseCase.execute(
+                        new CreateRoleCommand(
+                                tenantId,
+                                request.name(),
+                                request.description(),
+                                request.displayName(),
+                                request.capabilities()));
         return mapToResponse(role);
     }
 
     private RoleResponse mapToResponse(Role role) {
-        return new RoleResponse(role.getId(), role.getName(), role.getDescription(), role.getTenantId());
+        return new RoleResponse(
+                role.getId(),
+                role.getName(),
+                role.getDescription(),
+                role.getDisplayName(),
+                List.copyOf(role.getCapabilities()),
+                role.getTenantId());
     }
 }

@@ -1,8 +1,11 @@
 package com.solveria.core.iam.infrastructure.persistence.mapper;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solveria.core.iam.domain.model.Role;
 import com.solveria.core.iam.infrastructure.persistence.entity.PermissionJpaEntity;
 import com.solveria.core.iam.infrastructure.persistence.entity.RoleJpaEntity;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -15,12 +18,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class RoleJpaMapper {
 
-    /**
-     * Converts JPA entity to domain model.
-     *
-     * @param entity the JPA entity
-     * @return the domain model, or null if entity is null
-     */
+    private final ObjectMapper objectMapper;
+
+    public RoleJpaMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     public Role toDomain(RoleJpaEntity entity) {
         if (entity == null) {
             return null;
@@ -33,25 +36,23 @@ public class RoleJpaMapper {
                                 .collect(Collectors.toSet())
                         : Set.of();
 
-        return new Role(
-                entity.getId(),
-                entity.getName(),
-                entity.getDescription(),
-                permissionIds,
-                entity.getTenantId(),
-                entity.getVersion(),
-                entity.getCreatedAt(),
-                entity.getCreatedBy(),
-                entity.getLastModifiedAt(),
-                entity.getLastModifiedBy());
+        Role role =
+                new Role(
+                        entity.getId(),
+                        entity.getName(),
+                        entity.getDescription(),
+                        permissionIds,
+                        entity.getTenantId(),
+                        entity.getVersion(),
+                        entity.getCreatedAt(),
+                        entity.getCreatedBy(),
+                        entity.getLastModifiedAt(),
+                        entity.getLastModifiedBy());
+        role.setDisplayName(entity.getDisplayName());
+        role.assignCapabilities(deserializeCapabilities(entity.getCapabilitiesJson()));
+        return role;
     }
 
-    /**
-     * Converts domain model to JPA entity.
-     *
-     * @param domain the domain model
-     * @return the JPA entity, or null if domain is null
-     */
     public RoleJpaEntity toEntity(Role domain) {
         if (domain == null) {
             return null;
@@ -69,6 +70,27 @@ public class RoleJpaMapper {
 
         entity.setName(domain.getName());
         entity.setDescription(domain.getDescription());
+        entity.setDisplayName(domain.getDisplayName());
+        entity.setCapabilitiesJson(serializeCapabilities(domain.getCapabilities()));
         entity.setTenantId(domain.getTenantId());
+    }
+
+    private String serializeCapabilities(Set<String> capabilities) {
+        try {
+            return objectMapper.writeValueAsString(capabilities);
+        } catch (Exception e) {
+            return "[]";
+        }
+    }
+
+    private Set<String> deserializeCapabilities(String json) {
+        if (json == null || json.isBlank()) {
+            return Collections.emptySet();
+        }
+        try {
+            return objectMapper.readValue(json, new TypeReference<Set<String>>() {});
+        } catch (Exception e) {
+            return Collections.emptySet();
+        }
     }
 }

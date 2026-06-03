@@ -14,8 +14,8 @@ public class ListFoodListingsService implements ListFoodListingsUseCase {
     }
 
     @Override
-    public List<FoodListingResult> listAll() {
-        return repository.findAll().stream()
+    public List<FoodListingResult> listByTenant(String tenantId) {
+        return repository.findAllByTenantId(tenantId).stream()
                 .map(FoodListingResult::from)
                 .toList();
     }

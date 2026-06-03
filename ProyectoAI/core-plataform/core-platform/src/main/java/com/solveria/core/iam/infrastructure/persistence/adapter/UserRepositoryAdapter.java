@@ -35,12 +35,18 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public Optional<User> findByUsernameIgnoreCaseAndTenantId(String username, String tenantId) {
-        return userJpaRepository.findByUsernameIgnoreCaseAndTenantId(username, tenantId).map(mapper::toDomain);
+        return userJpaRepository
+                .findAllByUsernameIgnoreCaseAndTenantIdOrderByIdAsc(username, tenantId)
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
     }
 
     @Override
     public List<User> findAllByTenantId(String tenantId) {
-        return userJpaRepository.findAllByTenantId(tenantId).stream().map(mapper::toDomain).toList();
+        return userJpaRepository.findAllByTenantId(tenantId).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -60,9 +66,14 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
 
         var entity =
                 user.getId() != null
-                        ? userJpaRepository.findById(user.getId()).orElseGet(() -> mapper.toEntity(user, roles))
+                        ? userJpaRepository
+                                .findById(user.getId())
+                                .orElseGet(() -> mapper.toEntity(user, roles))
                         : userJpaRepository
-                                .findByUsernameIgnoreCaseAndTenantId(user.getUsername(), user.getTenantId())
+                                .findAllByUsernameIgnoreCaseAndTenantIdOrderByIdAsc(
+                                        user.getUsername(), user.getTenantId())
+                                .stream()
+                                .findFirst()
                                 .orElseGet(() -> mapper.toEntity(user, roles));
 
         mapper.updateEntity(entity, user, roles);

@@ -11,5 +11,4 @@ public record MarketplaceRoleTemplateResponse(
                         description = "Template description",
                         example = "Puede explorar ofertas, reservar packs y seguir sus retiros")
                 String description,
-        @Schema(description = "Main capabilities for this role")
-                List<String> capabilities) {}
+        @Schema(description = "Main capabilities for this role") List<String> capabilities) {}

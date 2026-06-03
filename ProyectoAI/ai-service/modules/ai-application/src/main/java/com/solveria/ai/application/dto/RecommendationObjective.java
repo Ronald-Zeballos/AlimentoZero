@@ -28,7 +28,8 @@ public enum RecommendationObjective {
     private final String description;
     private final List<String> recommendedProfiles;
 
-    RecommendationObjective(String displayName, String description, List<String> recommendedProfiles) {
+    RecommendationObjective(
+            String displayName, String description, List<String> recommendedProfiles) {
         this.displayName = displayName;
         this.description = description;
         this.recommendedProfiles = recommendedProfiles;

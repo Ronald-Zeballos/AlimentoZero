@@ -20,11 +20,17 @@ public class CreateRoleUseCase {
 
         roleRepository
                 .findByNameIgnoreCaseAndTenantId(normalizedName, command.tenantId())
-                .ifPresent(existing -> {
-                    throw new BusinessRuleViolationException("iam.role.name.duplicate");
-                });
+                .ifPresent(
+                        existing -> {
+                            throw new BusinessRuleViolationException("iam.role.name.duplicate");
+                        });
 
-        Role role = new Role(normalizedName, normalizedDescription);
+        Role role =
+                new Role(
+                        normalizedName,
+                        normalizedDescription,
+                        command.displayName(),
+                        command.capabilities());
         role.setTenantId(command.tenantId());
         return roleRepository.save(role);
     }

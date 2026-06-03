@@ -9,9 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * REST controller for RAG QA.
- */
+/** REST controller for RAG QA. */
 @RestController
 @RequestMapping("/api/v1/ai")
 public class RagQaController {
@@ -26,10 +24,8 @@ public class RagQaController {
     public ResponseEntity<RagQaResponse> qa(@Valid @RequestBody RagQaRequest request) {
         var command = new RagQaCommandDto(request.question(), request.namespace());
         RagQaResultDto result = ragQaUseCase.ask(command);
-        return ResponseEntity.ok(new RagQaResponse(
-                result.answer(),
-                result.promptTokens(),
-                result.completionTokens()
-        ));
+        return ResponseEntity.ok(
+                new RagQaResponse(
+                        result.answer(), result.promptTokens(), result.completionTokens()));
     }
 }

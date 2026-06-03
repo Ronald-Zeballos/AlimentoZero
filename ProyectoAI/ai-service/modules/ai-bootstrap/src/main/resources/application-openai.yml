@@ -1,9 +1,51 @@
-# Profile "openai": Enable OpenAI models (chat and embedding).
-# Use with "dev,openai" to enable OpenAI while keeping dev database config.
+server:
+  port: ${AI_SERVICE_PORT:8091}
+
 spring:
+  datasource:
+    url: jdbc:h2:mem:ai_openai;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+  jpa:
+    hibernate:
+      ddl-auto: update
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   ai:
     openai:
       api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: ${OPENAI_MODEL:gpt-4o-mini}
     model:
-      chat: openai
-      embedding: openai
+      embedding: none
+      audio:
+        speech: none
+        transcription: none
+      image: none
+      moderation: none
+    vectorstore:
+      type: none
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongodb.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongodb.MongoRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+
+security:
+  jwt:
+    enabled: false
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,http://localhost:5173,http://127.0.0.1:5173,null}
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

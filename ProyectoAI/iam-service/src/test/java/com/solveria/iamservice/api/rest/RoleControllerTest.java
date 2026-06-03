@@ -12,6 +12,7 @@ import com.solveria.iamservice.application.dto.MarketplaceRoleTemplateResponse;
 import com.solveria.iamservice.application.dto.RoleResponse;
 import com.solveria.iamservice.application.orchestration.CreateRoleOrchestrator;
 import com.solveria.iamservice.application.orchestration.MarketplaceRoleCatalogOrchestrator;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,29 +27,51 @@ class RoleControllerTest {
 
     @BeforeEach
     void setUp() {
-        CreateRoleOrchestrator createRoleOrchestrator = new CreateRoleOrchestrator(null) {
-            @Override
-            public RoleResponse execute(String tenantId, CreateRoleRequest request) {
-                return new RoleResponse(10L, request.name(), request.description(), tenantId);
-            }
-        };
+        CreateRoleOrchestrator createRoleOrchestrator =
+                new CreateRoleOrchestrator(null) {
+                    @Override
+                    public RoleResponse execute(String tenantId, CreateRoleRequest request) {
+                        return new RoleResponse(
+                                10L,
+                                request.name(),
+                                request.description(),
+                                request.displayName(),
+                                request.capabilities() != null
+                                        ? new ArrayList<>(request.capabilities())
+                                        : new ArrayList<>(),
+                                tenantId);
+                    }
+                };
 
         MarketplaceRoleCatalogOrchestrator marketplaceRoleCatalogOrchestrator =
                 new MarketplaceRoleCatalogOrchestrator(null, null, null) {
                     @Override
                     public List<MarketplaceRoleTemplateResponse> listTemplates() {
-                        return List.of(new MarketplaceRoleTemplateResponse(
-                                "COORDINATOR",
-                                "Coordinador",
-                                "Supervisa operaciones",
-                                List.of("Aprobar solicitudes", "Ver alertas")));
+                        return List.of(
+                                new MarketplaceRoleTemplateResponse(
+                                        "COORDINATOR",
+                                        "Coordinador",
+                                        "Supervisa operaciones",
+                                        List.of("Aprobar solicitudes", "Ver alertas")));
                     }
 
                     @Override
                     public List<RoleResponse> listTenantRoles(String tenantId) {
                         return List.of(
-                                new RoleResponse(1L, "USER_BUYER", "Compra y reserva", tenantId),
-                                new RoleResponse(2L, "MERCHANT", "Publica y gestiona", tenantId));
+                                new RoleResponse(
+                                        1L,
+                                        "USER_BUYER",
+                                        "Compra y reserva",
+                                        "Comprador",
+                                        List.of("Explorar ofertas"),
+                                        tenantId),
+                                new RoleResponse(
+                                        2L,
+                                        "MERCHANT",
+                                        "Publica y gestiona",
+                                        "Negocio",
+                                        List.of("Publicar ofertas"),
+                                        tenantId));
                     }
 
                     @Override
@@ -57,23 +80,39 @@ class RoleControllerTest {
                                 tenantId,
                                 2,
                                 List.of(
-                                        new RoleResponse(1L, "USER_BUYER", "Compra y reserva", tenantId),
-                                        new RoleResponse(2L, "MERCHANT", "Publica y gestiona", tenantId)));
+                                        new RoleResponse(
+                                                1L,
+                                                "USER_BUYER",
+                                                "Compra y reserva",
+                                                "Comprador",
+                                                List.of("Explorar ofertas"),
+                                                tenantId),
+                                        new RoleResponse(
+                                                2L,
+                                                "MERCHANT",
+                                                "Publica y gestiona",
+                                                "Negocio",
+                                                List.of("Publicar ofertas"),
+                                                tenantId)));
                     }
                 };
 
-        mvc = MockMvcBuilders.standaloneSetup(
-                        new RoleController(createRoleOrchestrator, marketplaceRoleCatalogOrchestrator))
-                .setMessageConverters(new MappingJackson2HttpMessageConverter())
-                .build();
+        mvc =
+                MockMvcBuilders.standaloneSetup(
+                                new RoleController(
+                                        createRoleOrchestrator, marketplaceRoleCatalogOrchestrator))
+                        .setMessageConverters(new MappingJackson2HttpMessageConverter())
+                        .build();
     }
 
     @Test
     void createRole_returnsCreatedWithBody() throws Exception {
-        mvc.perform(post("/api/v1/iam/roles")
-                        .header("X-Tenant-Id", "demo-tenant")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"MERCHANT\",\"description\":\"Puede publicar ofertas\"}"))
+        mvc.perform(
+                        post("/api/v1/iam/roles")
+                                .header("X-Tenant-Id", "demo-tenant")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"name\":\"MERCHANT\",\"description\":\"Puede publicar ofertas\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/v1/iam/roles/10"))
                 .andExpect(jsonPath("$.name").value("MERCHANT"))
@@ -98,8 +137,9 @@ class RoleControllerTest {
 
     @Test
     void bootstrapMarketplaceRoles_returnsEnsuredRoles() throws Exception {
-        mvc.perform(post("/api/v1/iam/roles/bootstrap/marketplace")
-                        .header("X-Tenant-Id", "demo-tenant"))
+        mvc.perform(
+                        post("/api/v1/iam/roles/bootstrap/marketplace")
+                                .header("X-Tenant-Id", "demo-tenant"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tenantId").value("demo-tenant"))
                 .andExpect(jsonPath("$.ensuredRoles").value(2))

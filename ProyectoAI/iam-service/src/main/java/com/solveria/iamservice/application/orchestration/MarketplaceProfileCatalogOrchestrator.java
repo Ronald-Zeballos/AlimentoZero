@@ -27,17 +27,19 @@ public class MarketplaceProfileCatalogOrchestrator {
 
     public List<MarketplaceProfileTemplateResponse> listTemplates() {
         return getMarketplaceProfileCatalogUseCase.execute().stream()
-                .map(template -> new MarketplaceProfileTemplateResponse(
-                        template.profileKey(),
-                        template.displayName(),
-                        template.description(),
-                        template.username(),
-                        template.primaryRoleCode(),
-                        template.actorType(),
-                        template.organizationId(),
-                        template.landingRoute(),
-                        template.suggestedObjective(),
-                        template.responsibilities()))
+                .map(
+                        template ->
+                                new MarketplaceProfileTemplateResponse(
+                                        template.profileKey(),
+                                        template.displayName(),
+                                        template.description(),
+                                        template.username(),
+                                        template.primaryRoleCode(),
+                                        template.actorType(),
+                                        template.organizationId(),
+                                        template.landingRoute(),
+                                        template.suggestedObjective(),
+                                        template.responsibilities()))
                 .toList();
     }
 
@@ -47,10 +49,13 @@ public class MarketplaceProfileCatalogOrchestrator {
 
     public List<MarketplaceProfileResponse> listTenantProfiles(String tenantId, String actorType) {
         return listMarketplaceProfilesUseCase.execute(tenantId).stream()
-                .filter(user -> actorType == null
-                        || actorType.isBlank()
-                        || user.getActorType().toUpperCase(Locale.ROOT)
-                                .equals(actorType.toUpperCase(Locale.ROOT)))
+                .filter(
+                        user ->
+                                actorType == null
+                                        || actorType.isBlank()
+                                        || user.getActorType()
+                                                .toUpperCase(Locale.ROOT)
+                                                .equals(actorType.toUpperCase(Locale.ROOT)))
                 .map(this::toResponse)
                 .toList();
     }
@@ -60,13 +65,17 @@ public class MarketplaceProfileCatalogOrchestrator {
                 .filter(user -> user.getProfileKey().equalsIgnoreCase(profileKey))
                 .findFirst()
                 .map(this::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Marketplace profile not found: " + profileKey));
+                .orElseThrow(
+                        () ->
+                                new IllegalArgumentException(
+                                        "Marketplace profile not found: " + profileKey));
     }
 
     public BootstrapMarketplaceProfilesResponse bootstrapTenant(String tenantId) {
-        List<MarketplaceProfileResponse> profiles = ensureMarketplaceProfilesUseCase.execute(tenantId).stream()
-                .map(this::toResponse)
-                .toList();
+        List<MarketplaceProfileResponse> profiles =
+                ensureMarketplaceProfilesUseCase.execute(tenantId).stream()
+                        .map(this::toResponse)
+                        .toList();
         return new BootstrapMarketplaceProfilesResponse(tenantId, profiles.size(), profiles);
     }
 

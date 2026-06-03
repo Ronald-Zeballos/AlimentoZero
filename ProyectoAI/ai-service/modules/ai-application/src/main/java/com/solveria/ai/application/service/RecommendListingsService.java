@@ -35,7 +35,8 @@ public class RecommendListingsService implements RecommendListingsUseCase {
                                 .map(value -> value.toLowerCase(Locale.ROOT))
                                 .collect(Collectors.toSet());
 
-        double maxDistance = command.maxDistanceKm() != null ? Math.max(command.maxDistanceKm(), 1.0d) : 10.0d;
+        double maxDistance =
+                command.maxDistanceKm() != null ? Math.max(command.maxDistanceKm(), 1.0d) : 10.0d;
         double maxPrice = command.maxPrice() != null ? Math.max(command.maxPrice(), 1.0d) : 50.0d;
 
         List<RecommendedListingDto> recommendations =
@@ -44,13 +45,17 @@ public class RecommendListingsService implements RecommendListingsUseCase {
                         : command.listings().stream()
                                 .filter(candidate -> candidate.quantityAvailable() > 0)
                                 .filter(candidate -> candidate.hoursToExpire() >= 0)
-                                .map(candidate -> scoreCandidate(
-                                        candidate,
-                                        command.objective(),
-                                        preferredCategories,
-                                        maxPrice,
-                                        maxDistance))
-                                .sorted(Comparator.comparingDouble(RecommendedListingDto::score).reversed())
+                                .map(
+                                        candidate ->
+                                                scoreCandidate(
+                                                        candidate,
+                                                        command.objective(),
+                                                        preferredCategories,
+                                                        maxPrice,
+                                                        maxDistance))
+                                .sorted(
+                                        Comparator.comparingDouble(RecommendedListingDto::score)
+                                                .reversed())
                                 .toList();
 
         return new RecommendationResultDto(
@@ -74,7 +79,10 @@ public class RecommendListingsService implements RecommendListingsUseCase {
         double categoryMatch =
                 preferredCategories.isEmpty()
                         ? 0.55d
-                        : preferredCategories.contains(candidate.category().toLowerCase(Locale.ROOT)) ? 1.0d : 0.20d;
+                        : preferredCategories.contains(
+                                        candidate.category().toLowerCase(Locale.ROOT))
+                                ? 1.0d
+                                : 0.20d;
         double affordability;
         if ("DONATION".equalsIgnoreCase(candidate.listingType())) {
             affordability = 1.0d;
@@ -97,37 +105,33 @@ public class RecommendListingsService implements RecommendListingsUseCase {
 
         double score =
                 switch (objective) {
-                    case DONATION_ROUTING ->
-                            (socialImpact * 0.35d)
-                                    + (urgency * 0.30d)
-                                    + (availability * 0.15d)
-                                    + (distance * 0.10d)
-                                    + (transportFactor * 0.10d);
-                    case COORDINATOR_PRIORITY ->
-                            (urgency * 0.45d)
-                                    + (socialImpact * 0.20d)
-                                    + (availability * 0.15d)
-                                    + (distance * 0.10d)
-                                    + ((candidate.requiresTransport() ? 1.0d : 0.4d) * 0.10d);
-                    case MERCHANT_RECOVERY ->
-                            (saleReadiness * 0.30d)
-                                    + (urgency * 0.25d)
-                                    + (marginRecovery * 0.18d)
-                                    + (availability * 0.15d)
-                                    + (categoryMatch * 0.07d)
-                                    + (distance * 0.05d);
-                    case TRANSPORT_ASSIGNMENT ->
-                            ((candidate.requiresTransport() ? 1.0d : 0.25d) * 0.35d)
-                                    + (urgency * 0.28d)
-                                    + (distance * 0.17d)
-                                    + (availability * 0.10d)
-                                    + (socialImpact * 0.10d);
-                    case BUYER_DISCOVERY ->
-                            (affordability * 0.32d)
-                                    + (distance * 0.22d)
-                                    + (urgency * 0.20d)
-                                    + (categoryMatch * 0.16d)
-                                    + (availability * 0.10d);
+                    case DONATION_ROUTING -> (socialImpact * 0.35d)
+                            + (urgency * 0.30d)
+                            + (availability * 0.15d)
+                            + (distance * 0.10d)
+                            + (transportFactor * 0.10d);
+                    case COORDINATOR_PRIORITY -> (urgency * 0.45d)
+                            + (socialImpact * 0.20d)
+                            + (availability * 0.15d)
+                            + (distance * 0.10d)
+                            + ((candidate.requiresTransport() ? 1.0d : 0.4d) * 0.10d);
+                    case MERCHANT_RECOVERY -> (saleReadiness * 0.30d)
+                            + (urgency * 0.25d)
+                            + (marginRecovery * 0.18d)
+                            + (availability * 0.15d)
+                            + (categoryMatch * 0.07d)
+                            + (distance * 0.05d);
+                    case TRANSPORT_ASSIGNMENT -> ((candidate.requiresTransport() ? 1.0d : 0.25d)
+                                    * 0.35d)
+                            + (urgency * 0.28d)
+                            + (distance * 0.17d)
+                            + (availability * 0.10d)
+                            + (socialImpact * 0.10d);
+                    case BUYER_DISCOVERY -> (affordability * 0.32d)
+                            + (distance * 0.22d)
+                            + (urgency * 0.20d)
+                            + (categoryMatch * 0.16d)
+                            + (availability * 0.10d);
                 };
 
         List<String> reasons = new ArrayList<>();
@@ -155,7 +159,8 @@ public class RecommendListingsService implements RecommendListingsUseCase {
                 && !"DONATION".equalsIgnoreCase(candidate.listingType())) {
             reasons.add("Ayuda a recuperar margen antes del vencimiento");
         }
-        if (objective == RecommendationObjective.TRANSPORT_ASSIGNMENT && candidate.requiresTransport()) {
+        if (objective == RecommendationObjective.TRANSPORT_ASSIGNMENT
+                && candidate.requiresTransport()) {
             reasons.add("Conviene asignarlo a una ruta operativa");
         }
 

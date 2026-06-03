@@ -27,43 +27,65 @@ public class GenerateMarketBriefingService implements GenerateMarketBriefingUseC
 
     @Override
     public MarketBriefingResultDto generate(MarketBriefingCommandDto command) {
-        RecommendationResultDto recommendationResult = recommendListingsUseCase.recommend(
-                new RecommendListingsCommandDto(
-                        command.objective(),
-                        command.listings(),
-                        command.preferredCategories(),
-                        command.maxPrice(),
-                        command.maxDistanceKm()));
+        RecommendationResultDto recommendationResult =
+                recommendListingsUseCase.recommend(
+                        new RecommendListingsCommandDto(
+                                command.objective(),
+                                command.listings(),
+                                command.preferredCategories(),
+                                command.maxPrice(),
+                                command.maxDistanceKm()));
 
         List<RecommendedListingDto> topRecommendations =
                 recommendationResult.recommendations().stream().limit(3).toList();
         Map<String, RecommendationCandidateDto> candidatesById =
-                command.listings().stream().collect(Collectors.toMap(
-                        RecommendationCandidateDto::id, Function.identity(), (left, right) -> left));
+                command.listings().stream()
+                        .collect(
+                                Collectors.toMap(
+                                        RecommendationCandidateDto::id,
+                                        Function.identity(),
+                                        (left, right) -> left));
 
-        long criticalCount = recommendationResult.recommendations().stream()
-                .filter(RecommendedListingDto::critical)
-                .count();
+        long criticalCount =
+                recommendationResult.recommendations().stream()
+                        .filter(RecommendedListingDto::critical)
+                        .count();
 
         List<String> alerts = new ArrayList<>();
         if (criticalCount > 0) {
-            alerts.add("Hay " + criticalCount + " publicaciones que requieren atencion en las proximas horas.");
+            alerts.add(
+                    "Hay "
+                            + criticalCount
+                            + " publicaciones que requieren atencion en las proximas horas.");
         }
-        long transportTasks = command.listings().stream().filter(RecommendationCandidateDto::requiresTransport).count();
+        long transportTasks =
+                command.listings().stream()
+                        .filter(RecommendationCandidateDto::requiresTransport)
+                        .count();
         if (transportTasks > 0) {
-            alerts.add("Se detectaron " + transportTasks + " casos con coordinacion logistica necesaria.");
+            alerts.add(
+                    "Se detectaron "
+                            + transportTasks
+                            + " casos con coordinacion logistica necesaria.");
         }
-        long donationCount = command.listings().stream()
-                .filter(candidate -> "DONATION".equalsIgnoreCase(candidate.listingType()))
-                .count();
+        long donationCount =
+                command.listings().stream()
+                        .filter(candidate -> "DONATION".equalsIgnoreCase(candidate.listingType()))
+                        .count();
         if (command.objective() == RecommendationObjective.DONATION_ROUTING && donationCount == 0) {
             alerts.add("No hay donaciones activas para priorizar en este momento.");
         }
 
-        List<String> priorityActions = topRecommendations.stream()
-                .map(recommendation -> buildAction(command.objective(), recommendation, candidatesById.get(recommendation.listingId())))
-                .distinct()
-                .toList();
+        List<String> priorityActions =
+                topRecommendations.stream()
+                        .map(
+                                recommendation ->
+                                        buildAction(
+                                                command.objective(),
+                                                recommendation,
+                                                candidatesById.get(recommendation.listingId())))
+                        .distinct()
+                        .toList();
 
         return new MarketBriefingResultDto(
                 recommendationResult.tenantId(),
@@ -80,16 +102,17 @@ public class GenerateMarketBriefingService implements GenerateMarketBriefingUseC
 
     private String buildHeadline(RecommendationObjective objective, int count, long criticalCount) {
         return switch (objective) {
-            case BUYER_DISCOVERY ->
-                    "Encontramos " + count + " packs con buena combinacion de precio, cercania y urgencia.";
-            case DONATION_ROUTING ->
-                    "Se priorizaron " + count + " oportunidades sociales con foco en impacto y vencimiento.";
-            case COORDINATOR_PRIORITY ->
-                    "El tablero detecta " + criticalCount + " focos criticos para coordinacion inmediata.";
-            case MERCHANT_RECOVERY ->
-                    "Estas ofertas concentran la mejor opcion de rotacion antes del vencimiento.";
-            case TRANSPORT_ASSIGNMENT ->
-                    "Estas rutas conviene tomarlas primero para no perder capacidad operativa.";
+            case BUYER_DISCOVERY -> "Encontramos "
+                    + count
+                    + " packs con buena combinacion de precio, cercania y urgencia.";
+            case DONATION_ROUTING -> "Se priorizaron "
+                    + count
+                    + " oportunidades sociales con foco en impacto y vencimiento.";
+            case COORDINATOR_PRIORITY -> "El tablero detecta "
+                    + criticalCount
+                    + " focos criticos para coordinacion inmediata.";
+            case MERCHANT_RECOVERY -> "Estas ofertas concentran la mejor opcion de rotacion antes del vencimiento.";
+            case TRANSPORT_ASSIGNMENT -> "Estas rutas conviene tomarlas primero para no perder capacidad operativa.";
         };
     }
 
@@ -106,16 +129,17 @@ public class GenerateMarketBriefingService implements GenerateMarketBriefingUseC
         String title = candidate != null ? candidate.title() : top.title();
 
         return switch (objective) {
-            case BUYER_DISCOVERY ->
-                    "La mejor apuesta ahora es " + title + " porque combina cercania, precio y retiro rapido.";
-            case DONATION_ROUTING ->
-                    title + " aparece arriba por su impacto potencial y por el riesgo de vencimiento.";
-            case COORDINATOR_PRIORITY ->
-                    title + " encabeza la cola por urgencia operativa y necesidad de coordinacion.";
-            case MERCHANT_RECOVERY ->
-                    title + " ofrece la mayor probabilidad de recuperar margen sin dejar que el stock expire.";
-            case TRANSPORT_ASSIGNMENT ->
-                    title + " debe entrar primero en ruta por urgencia y dependencia logistica.";
+            case BUYER_DISCOVERY -> "La mejor apuesta ahora es "
+                    + title
+                    + " porque combina cercania, precio y retiro rapido.";
+            case DONATION_ROUTING -> title
+                    + " aparece arriba por su impacto potencial y por el riesgo de vencimiento.";
+            case COORDINATOR_PRIORITY -> title
+                    + " encabeza la cola por urgencia operativa y necesidad de coordinacion.";
+            case MERCHANT_RECOVERY -> title
+                    + " ofrece la mayor probabilidad de recuperar margen sin dejar que el stock expire.";
+            case TRANSPORT_ASSIGNMENT -> title
+                    + " debe entrar primero en ruta por urgencia y dependencia logistica.";
         };
     }
 
@@ -124,14 +148,25 @@ public class GenerateMarketBriefingService implements GenerateMarketBriefingUseC
             RecommendedListingDto recommendation,
             RecommendationCandidateDto candidate) {
         String title = candidate != null ? candidate.title() : recommendation.title();
-        String category = candidate != null ? candidate.category().toLowerCase(Locale.ROOT) : "publicacion";
+        String category =
+                candidate != null ? candidate.category().toLowerCase(Locale.ROOT) : "publicacion";
 
         return switch (objective) {
-            case BUYER_DISCOVERY -> "Impulsar retiro de " + title + " antes de que suba la competencia.";
+            case BUYER_DISCOVERY -> "Impulsar retiro de "
+                    + title
+                    + " antes de que suba la competencia.";
             case DONATION_ROUTING -> "Coordinar receptor y confirmacion para " + title + ".";
-            case COORDINATOR_PRIORITY -> "Escalar " + title + " en el tablero y confirmar responsable operativo.";
-            case MERCHANT_RECOVERY -> "Promocionar " + title + " como prioridad comercial de " + category + ".";
-            case TRANSPORT_ASSIGNMENT -> "Asignar ruta temprana para " + title + " y bloquear capacidad.";
+            case COORDINATOR_PRIORITY -> "Escalar "
+                    + title
+                    + " en el tablero y confirmar responsable operativo.";
+            case MERCHANT_RECOVERY -> "Promocionar "
+                    + title
+                    + " como prioridad comercial de "
+                    + category
+                    + ".";
+            case TRANSPORT_ASSIGNMENT -> "Asignar ruta temprana para "
+                    + title
+                    + " y bloquear capacidad.";
         };
     }
 }

@@ -41,94 +41,111 @@ public class MarketRecommendationController {
 
     @GetMapping("/objectives")
     public ResponseEntity<List<RecommendationObjectiveResponse>> listObjectives() {
-        return ResponseEntity.status(HttpStatus.OK).body(Arrays.stream(RecommendationObjective.values())
-                .map(objective -> new RecommendationObjectiveResponse(
-                        objective.name(),
-                        objective.displayName(),
-                        objective.description(),
-                        objective.recommendedProfiles()))
-                .toList());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(
+                        Arrays.stream(RecommendationObjective.values())
+                                .map(
+                                        objective ->
+                                                new RecommendationObjectiveResponse(
+                                                        objective.name(),
+                                                        objective.displayName(),
+                                                        objective.description(),
+                                                        objective.recommendedProfiles()))
+                                .toList());
     }
 
     @PostMapping("/recommendations")
     public ResponseEntity<RecommendListingsResponse> recommend(
             @Valid @RequestBody RecommendListingsRequest request) {
-        var command = new RecommendListingsCommandDto(
-                RecommendationObjective.valueOf(request.objective()),
-                request.listings().stream()
-                        .map(listing -> new RecommendationCandidateDto(
-                                listing.id(),
-                                listing.title(),
-                                listing.category(),
-                                listing.listingType(),
-                                listing.rescuePrice(),
-                                listing.quantityAvailable(),
-                                listing.distanceKm(),
-                                listing.hoursToExpire(),
-                                listing.requiresTransport(),
-                                listing.mealsEquivalent()))
-                        .toList(),
-                request.preferredCategories(),
-                request.maxPrice(),
-                request.maxDistanceKm());
+        var command =
+                new RecommendListingsCommandDto(
+                        RecommendationObjective.valueOf(request.objective()),
+                        request.listings().stream()
+                                .map(
+                                        listing ->
+                                                new RecommendationCandidateDto(
+                                                        listing.id(),
+                                                        listing.title(),
+                                                        listing.category(),
+                                                        listing.listingType(),
+                                                        listing.rescuePrice(),
+                                                        listing.quantityAvailable(),
+                                                        listing.distanceKm(),
+                                                        listing.hoursToExpire(),
+                                                        listing.requiresTransport(),
+                                                        listing.mealsEquivalent()))
+                                .toList(),
+                        request.preferredCategories(),
+                        request.maxPrice(),
+                        request.maxDistanceKm());
 
         var result = recommendListingsUseCase.recommend(command);
-        return ResponseEntity.ok(new RecommendListingsResponse(
-                result.tenantId(),
-                result.principal(),
-                result.objective().name(),
-                result.strategy(),
-                result.generatedAt(),
-                result.recommendations().stream()
-                        .map(recommendation -> new RecommendedListingResponse(
-                                recommendation.listingId(),
-                                recommendation.title(),
-                                recommendation.score(),
-                                recommendation.critical(),
-                                recommendation.reasons()))
-                        .toList()));
+        return ResponseEntity.ok(
+                new RecommendListingsResponse(
+                        result.tenantId(),
+                        result.principal(),
+                        result.objective().name(),
+                        result.strategy(),
+                        result.generatedAt(),
+                        result.recommendations().stream()
+                                .map(
+                                        recommendation ->
+                                                new RecommendedListingResponse(
+                                                        recommendation.listingId(),
+                                                        recommendation.title(),
+                                                        recommendation.score(),
+                                                        recommendation.critical(),
+                                                        recommendation.reasons()))
+                                .toList()));
     }
 
     @PostMapping("/briefings")
     public ResponseEntity<MarketBriefingResponse> briefing(
             @Valid @RequestBody MarketBriefingRequest request) {
-        var result = generateMarketBriefingUseCase.generate(new MarketBriefingCommandDto(
-                RecommendationObjective.valueOf(request.objective()),
-                request.profileKey(),
-                request.listings().stream()
-                        .map(listing -> new RecommendationCandidateDto(
-                                listing.id(),
-                                listing.title(),
-                                listing.category(),
-                                listing.listingType(),
-                                listing.rescuePrice(),
-                                listing.quantityAvailable(),
-                                listing.distanceKm(),
-                                listing.hoursToExpire(),
-                                listing.requiresTransport(),
-                                listing.mealsEquivalent()))
-                        .toList(),
-                request.preferredCategories(),
-                request.maxPrice(),
-                request.maxDistanceKm()));
+        var result =
+                generateMarketBriefingUseCase.generate(
+                        new MarketBriefingCommandDto(
+                                RecommendationObjective.valueOf(request.objective()),
+                                request.profileKey(),
+                                request.listings().stream()
+                                        .map(
+                                                listing ->
+                                                        new RecommendationCandidateDto(
+                                                                listing.id(),
+                                                                listing.title(),
+                                                                listing.category(),
+                                                                listing.listingType(),
+                                                                listing.rescuePrice(),
+                                                                listing.quantityAvailable(),
+                                                                listing.distanceKm(),
+                                                                listing.hoursToExpire(),
+                                                                listing.requiresTransport(),
+                                                                listing.mealsEquivalent()))
+                                        .toList(),
+                                request.preferredCategories(),
+                                request.maxPrice(),
+                                request.maxDistanceKm()));
 
-        return ResponseEntity.ok(new MarketBriefingResponse(
-                result.tenantId(),
-                result.principal(),
-                result.objective().name(),
-                result.profileKey(),
-                result.headline(),
-                result.summary(),
-                result.priorityActions(),
-                result.alerts(),
-                result.recommendations().stream()
-                        .map(recommendation -> new RecommendedListingResponse(
-                                recommendation.listingId(),
-                                recommendation.title(),
-                                recommendation.score(),
-                                recommendation.critical(),
-                                recommendation.reasons()))
-                        .toList(),
-                result.generatedAt()));
+        return ResponseEntity.ok(
+                new MarketBriefingResponse(
+                        result.tenantId(),
+                        result.principal(),
+                        result.objective().name(),
+                        result.profileKey(),
+                        result.headline(),
+                        result.summary(),
+                        result.priorityActions(),
+                        result.alerts(),
+                        result.recommendations().stream()
+                                .map(
+                                        recommendation ->
+                                                new RecommendedListingResponse(
+                                                        recommendation.listingId(),
+                                                        recommendation.title(),
+                                                        recommendation.score(),
+                                                        recommendation.critical(),
+                                                        recommendation.reasons()))
+                                .toList(),
+                        result.generatedAt()));
     }
 }

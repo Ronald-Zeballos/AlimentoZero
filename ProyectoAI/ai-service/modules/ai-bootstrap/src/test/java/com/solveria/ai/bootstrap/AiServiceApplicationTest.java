@@ -9,6 +9,5 @@ import org.springframework.test.context.ActiveProfiles;
 class AiServiceApplicationTest {
 
     @Test
-    void contextLoads() {
-    }
+    void contextLoads() {}
 }

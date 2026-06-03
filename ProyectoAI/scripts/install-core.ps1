@@ -27,11 +27,11 @@ $testFlag = if ($SkipTests) { "-DskipTests" } else { "" }
 
 Push-Location "$rootDir\core-plataform"
 try {
-    & .\mvnw clean install $testFlag
+    & .\mvnw.cmd clean install $testFlag
     if ($LASTEXITCODE -ne 0) {
         throw "core-platform install failed"
     }
-    Write-Host "✓ core-platform installed successfully" -ForegroundColor Green
+    Write-Host "OK: core-platform installed successfully" -ForegroundColor Green
 } finally {
     Pop-Location
 }

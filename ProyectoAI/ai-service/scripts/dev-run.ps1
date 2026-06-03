@@ -6,9 +6,25 @@ param(
 
 Write-Host "Starting ai-service in dev profile..." -ForegroundColor Cyan
 
+function Import-EnvFile {
+    param([string]$Path)
+    if (-not (Test-Path $Path)) { return }
+    Get-Content $Path | ForEach-Object {
+        $line = $_.Trim()
+        if (-not $line -or $line.StartsWith("#") -or -not $line.Contains("=")) { return }
+        $key, $value = $line -split "=", 2
+        if ($key -and -not [Environment]::GetEnvironmentVariable($key, "Process")) {
+            [Environment]::SetEnvironmentVariable($key, $value, "Process")
+        }
+    }
+}
+
+Import-EnvFile (Join-Path (Split-Path -Parent $PSScriptRoot) ".env")
+$profile = if ($env:AI_PROFILE) { $env:AI_PROFILE } else { "dev" }
+
 $mvnArgs = @(
-    "-pl", "modules/ai-bootstrap",
-    "-Dspring-boot.run.profiles=dev"
+    "-f", "modules/ai-bootstrap/pom.xml",
+    "-Dspring-boot.run.profiles=$profile"
 )
 
 if ($Port -gt 0) {

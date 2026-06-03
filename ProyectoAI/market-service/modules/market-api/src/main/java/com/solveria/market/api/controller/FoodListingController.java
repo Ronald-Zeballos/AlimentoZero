@@ -56,10 +56,11 @@ public class FoodListingController {
     @GetMapping({"", "/"})
     @Operation(summary = "List rescue listings")
     public ResponseEntity<List<FoodListingResponse>> list(
+            @RequestHeader("X-Tenant-Id") String tenantId,
             @RequestParam(required = false) String merchantId,
             @RequestParam(required = false) String listingType,
             @RequestParam(required = false) String status) {
-        var listings = listFoodListingsUseCase.listAll().stream()
+        var listings = listFoodListingsUseCase.listByTenant(tenantId).stream()
                 .filter(listing -> merchantId == null || merchantId.isBlank()
                         || listing.merchantId().equalsIgnoreCase(merchantId))
                 .filter(listing -> listingType == null || listingType.isBlank()

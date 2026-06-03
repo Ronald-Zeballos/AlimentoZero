@@ -24,11 +24,11 @@ Write-Host ""
 Write-Host "[1/3] Formatting core-platform..." -ForegroundColor Yellow
 Push-Location "$rootDir\core-plataform"
 try {
-    & .\mvnw spotless:apply
+    & .\mvnw.cmd spotless:apply
     if ($LASTEXITCODE -ne 0) {
         throw "core-platform formatting failed"
     }
-    Write-Host "✓ core-platform formatted" -ForegroundColor Green
+    Write-Host "OK: core-platform formatted" -ForegroundColor Green
 } finally {
     Pop-Location
 }
@@ -39,11 +39,11 @@ Write-Host ""
 Write-Host "[2/3] Formatting iam-service..." -ForegroundColor Yellow
 Push-Location "$rootDir\iam-service"
 try {
-    & .\mvnw spotless:apply
+    & .\mvnw.cmd spotless:apply
     if ($LASTEXITCODE -ne 0) {
         throw "iam-service formatting failed"
     }
-    Write-Host "✓ iam-service formatted" -ForegroundColor Green
+    Write-Host "OK: iam-service formatted" -ForegroundColor Green
 } finally {
     Pop-Location
 }
@@ -58,12 +58,12 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "ai-service formatting failed"
     }
-    Write-Host "✓ ai-service formatted" -ForegroundColor Green
+    Write-Host "OK: ai-service formatted" -ForegroundColor Green
 } finally {
     Pop-Location
 }
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host " ✓ ALL CODE FORMATTED" -ForegroundColor Green
+Write-Host " [OK] ALL CODE FORMATTED" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan

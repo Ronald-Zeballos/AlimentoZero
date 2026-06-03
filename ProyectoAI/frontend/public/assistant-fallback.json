@@ -1,0 +1,58 @@
+[
+  {
+    "role": "restaurant",
+    "tab": "profile",
+    "target": "restaurantProfile",
+    "questions": ["quiero cambiar mi nit", "actualizar nit", "editar rut", "datos fiscales", "razon social"],
+    "answer": "Para cambiar el NIT entra a Perfil. Ahi esta el formulario de datos fiscales con razon social, NIT, telefono y direccion."
+  },
+  {
+    "role": "restaurant",
+    "tab": "publish",
+    "target": "restaurantProductFormCard",
+    "questions": ["publicar oferta", "crear producto", "donar excedente", "agregar comida", "subir producto"],
+    "answer": "Para publicar una oferta entra a Publicar. Completa nombre, categoria, precio original, precio rescate, stock, descripcion y tipo de oferta."
+  },
+  {
+    "role": "restaurant",
+    "tab": "orders",
+    "target": "restaurantOrdersCard",
+    "questions": ["gestionar pedidos", "cambiar estado pedido", "marcar preparando", "marcar listo", "codigo recogida"],
+    "answer": "En Pedidos puedes cambiar el estado de cada orden: confirmado, preparando, listo y retirado. El codigo de recogida aparece junto al pedido."
+  },
+  {
+    "role": "buyer",
+    "tab": "restaurants",
+    "target": "buyerRestaurants",
+    "questions": ["restaurantes cerca", "buscar restaurantes", "ver restaurantes cerca", "locales cercanos"],
+    "answer": "En Restaurantes ves locales cercanos y su ubicacion aproximada en el mapa."
+  },
+  {
+    "role": "buyer",
+    "tab": "orders",
+    "target": "buyerOrders",
+    "questions": ["mis pedidos", "historial de pedidos", "ver pedido", "estado de mi pedido"],
+    "answer": "En Mis Pedidos ves tus compras, estado, restaurante, total y opcion de rastreo cuando hay repartidor."
+  },
+  {
+    "role": "social",
+    "tab": "available",
+    "target": "socialAvailable",
+    "questions": ["solicitar donacion", "donaciones disponibles", "pedir alimentos", "alimentos gratis"],
+    "answer": "Como entidad social, entra a Disponibles para solicitar donaciones. Esta accion no usa carrito porque no es una compra."
+  },
+  {
+    "role": "driver",
+    "tab": "map",
+    "target": "driverMapPane",
+    "questions": ["ver mapa", "ruta", "ubicacion entrega", "donde entregar"],
+    "answer": "En Mapa ves origen, destino y ruta estimada del reparto activo."
+  },
+  {
+    "role": null,
+    "tab": null,
+    "target": null,
+    "questions": ["se cayo la ia", "no responde la ia", "api key", "openai no funciona"],
+    "answer": "Si la IA externa no responde, sigo usando esta ayuda local. Para OpenAI revisa que ai-service/.env tenga OPENAI_API_KEY y AI_PROFILE=openai."
+  }
+]

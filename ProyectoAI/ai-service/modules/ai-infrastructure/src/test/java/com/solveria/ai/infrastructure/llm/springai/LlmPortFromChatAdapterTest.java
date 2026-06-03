@@ -1,5 +1,8 @@
 package com.solveria.ai.infrastructure.llm.springai;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.solveria.ai.application.dto.ChatResultDto;
 import com.solveria.ai.application.port.out.LlmChatPort;
 import com.solveria.ai.domain.model.Completion;
@@ -9,14 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class LlmPortFromChatAdapterTest {
 
-    @Mock
-    private LlmChatPort llmChat;
+    @Mock private LlmChatPort llmChat;
 
     @Test
     void complete_delegatesToLlmChatAndMapsToCompletion() {

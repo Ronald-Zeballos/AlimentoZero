@@ -1,5 +1,9 @@
 package com.solveria.ai.application.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.solveria.ai.application.port.out.LlmPort;
 import com.solveria.ai.domain.model.Completion;
 import com.solveria.ai.domain.model.Prompt;
@@ -9,18 +13,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class CompletePromptServiceTest {
 
-    @Mock
-    private LlmPort llmPort;
+    @Mock private LlmPort llmPort;
 
-    @InjectMocks
-    private CompletePromptService service;
+    @InjectMocks private CompletePromptService service;
 
     @Test
     void complete_delegatesToLlmPort() {

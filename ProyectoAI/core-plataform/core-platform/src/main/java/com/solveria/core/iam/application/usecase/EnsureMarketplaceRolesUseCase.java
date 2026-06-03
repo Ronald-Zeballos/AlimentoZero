@@ -6,6 +6,7 @@ import com.solveria.core.iam.domain.catalog.MarketplaceRoleCatalog;
 import com.solveria.core.iam.domain.model.Role;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class EnsureMarketplaceRolesUseCase {
 
@@ -22,10 +23,18 @@ public class EnsureMarketplaceRolesUseCase {
         List<Role> ensuredRoles = new ArrayList<>();
 
         for (var template : MarketplaceRoleCatalog.defaultTemplates()) {
-            Role role = roleRepository
-                    .findByNameIgnoreCaseAndTenantId(template.code(), tenantId)
-                    .orElseGet(() -> createRoleUseCase.execute(
-                            new CreateRoleCommand(tenantId, template.code(), template.description())));
+            Role role =
+                    roleRepository
+                            .findByNameIgnoreCaseAndTenantId(template.code(), tenantId)
+                            .orElseGet(
+                                    () ->
+                                            createRoleUseCase.execute(
+                                                    new CreateRoleCommand(
+                                                            tenantId,
+                                                            template.code(),
+                                                            template.description(),
+                                                            template.displayName(),
+                                                            Set.copyOf(template.capabilities()))));
             ensuredRoles.add(role);
         }
 

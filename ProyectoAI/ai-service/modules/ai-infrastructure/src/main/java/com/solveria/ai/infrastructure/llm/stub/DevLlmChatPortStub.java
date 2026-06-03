@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * Stub LlmChatPort implementation for dev and test profiles.
- * Provides fallback implementation when no real LLM provider is configured.
- * Marked as @Primary to ensure it takes precedence over other implementations in dev/test.
+ * Stub LlmChatPort implementation for dev and test profiles. Provides fallback implementation when
+ * no real LLM provider is configured. Marked as @Primary to ensure it takes precedence over other
+ * implementations in dev/test.
  */
 @Component
 @Primary
@@ -27,10 +27,6 @@ public class DevLlmChatPortStub implements LlmChatPort {
     @Override
     public ChatResultDto chat(String prompt) {
         log.debug("DevLlmChatPortStub.chat() called with prompt: {}", prompt);
-        return new ChatResultDto(
-            "[DEV-STUB] LLM no configurado. Respuesta simulada.",
-            0,
-            0
-        );
+        return new ChatResultDto("[DEV-STUB] LLM no configurado. Respuesta simulada.", 0, 0);
     }
 }

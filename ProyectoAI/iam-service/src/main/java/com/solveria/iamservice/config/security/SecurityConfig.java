@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -59,6 +60,7 @@ public class SecurityConfig {
                 // Disable CSRF for stateless REST API
                 // REST APIs are stateless and use JWT tokens, so CSRF protection is not needed
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
 
                 // Stateless session management (JWT tokens, no server-side sessions)
                 .sessionManagement(
@@ -129,6 +131,7 @@ public class SecurityConfig {
                 // Disable CSRF for stateless REST API
                 // In DEV mode, we still disable CSRF for consistency with JWT mode
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
 
                 // Stateless session management
                 .sessionManagement(
