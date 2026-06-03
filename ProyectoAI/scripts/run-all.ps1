@@ -69,9 +69,21 @@ function Start-DockerInfra {
     Write-Host "[$Title] Starting Docker containers..." -ForegroundColor Yellow
     Push-Location (Join-Path $rootDir $ComposeDir)
     try {
-        $null = & docker-compose up -d 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "[$Title] WARNING: Docker not available (exit code $LASTEXITCODE)" -ForegroundColor Red
+        $oldErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        $output = & docker-compose up -d 2>&1
+        $exitCode = $LASTEXITCODE
+        $ErrorActionPreference = $oldErrorActionPreference
+
+        if ($output) {
+            $output | ForEach-Object {
+                $line = if ($_ -is [System.Management.Automation.ErrorRecord]) { $_.Exception.Message } else { $_.ToString() }
+                if ($line) { Write-Host "[$Title] $line" -ForegroundColor Gray }
+            }
+        }
+
+        if ($exitCode -ne 0) {
+            Write-Host "[$Title] WARNING: Docker not available (exit code $exitCode)" -ForegroundColor Red
             Write-Host "[$Title] Continuing without Docker. PostgreSQL must be started manually if needed." -ForegroundColor Yellow
             return
         }

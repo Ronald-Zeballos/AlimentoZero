@@ -52,9 +52,23 @@ if (-not $NoDocker) {
         Write-Host "[Docker] Stopping ai-service containers..." -ForegroundColor Yellow
         Push-Location (Split-Path -Parent $dockerCompose)
         try {
-            & docker-compose down 2>$null
-            if ($LASTEXITCODE -eq 0) {
+            $oldErrorActionPreference = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            $output = & docker-compose down 2>&1
+            $exitCode = $LASTEXITCODE
+            $ErrorActionPreference = $oldErrorActionPreference
+
+            if ($output) {
+                $output | ForEach-Object {
+                    $line = if ($_ -is [System.Management.Automation.ErrorRecord]) { $_.Exception.Message } else { $_.ToString() }
+                    if ($line) { Write-Host "[Docker] $line" -ForegroundColor Gray }
+                }
+            }
+
+            if ($exitCode -eq 0) {
                 Write-Host "[Docker] Containers stopped" -ForegroundColor Green
+            } else {
+                Write-Host "[Docker] WARNING: docker-compose down exited with code $exitCode" -ForegroundColor Yellow
             }
         } finally {
             Pop-Location
